@@ -14,7 +14,7 @@ Android 日记二：编写 MVP + 依赖流入的 Activity
 5. 展示数据
 6. 优化 UI（留给第二天）
 
-1. 创建一个空白页
+1.创建一个空白页
 ---
 
 这一步就比较简单了，网上找个 Hello, world 放置一下就可以了：
@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
 ```
 
 
-2. 首页打开列表页
+2.首页打开列表页
 ---
 
 这部分的代码比较简单，如下所示：
@@ -95,7 +95,7 @@ startActivity(intent);
 
 不过，我一开始写的代码是错的。
 
-3. 将参数传递到详情页
+3.将参数传递到详情页
 ---
 
 这一步也不难，就是先 putExtras 再 getExtras：
@@ -120,7 +120,7 @@ startActivity(intent);
 ```
 
 
-4. 在详情页去获取数据
+4.在详情页去获取数据
 ---
 
 我本来以为这一部分很简单，但是没想到的是我们的 Android 项目是遵循 Google 推荐的 MVP 架构。可以在 Google Samples 看到一个相关的示例：[todo-mvp](https://github.com/googlesamples/android-architecture/tree/todo-mvp)
@@ -240,7 +240,7 @@ public interface ActivityComponent {
     })
 ```        
 
-5. 展示数据
+5.展示数据
 ---
 
 当我们 Activity 将会继承自上面的 View，以及实现对应的逻辑：
