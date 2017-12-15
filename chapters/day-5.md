@@ -1,3 +1,6 @@
+大前端 Android 开发日记五：代码重构
+===
+
 1. unused filted
 2. 测试 null
 3. info -> information

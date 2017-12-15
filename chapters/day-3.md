@@ -1,4 +1,4 @@
-Android 日记三：使用 ViewHolder 与 XML 编写 UI
+大前端 Android 开发日记三：使用 ViewHolder 与 XML 编写 UI
 ===
 
 在之前的两天里，我花了大量的时间在熟悉系统的架构上。因此，在这一天里，我主要花费的时间都是在编写 UI 上，以及对应的一些事件处理。

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>电子书模板 – ebook</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      div.line-block{white-space: pre-line;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+div.sourceLine, a.sourceLine { display: inline-block; min-height: 1.25em; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; }
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+div.sourceLine, a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource div.sourceLine, .numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource div.sourceLine::before, .numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em; }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; color: #aaaaaa;  padding-left: 4px; }
+@media screen {
+a.sourceLine::before { text-decoration: underline; color: initial; }
+}
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.bn { color: #40a070; } /* BaseN */
+code span.fl { color: #40a070; } /* Float */
+code span.ch { color: #4070a0; } /* Char */
+code span.st { color: #4070a0; } /* String */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.ot { color: #007020; } /* Other */
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.fu { color: #06287e; } /* Function */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code span.cn { color: #880000; } /* Constant */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.im { } /* Import */
+code span.va { color: #19177c; } /* Variable */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.op { color: #666666; } /* Operator */
+code span.bu { } /* BuiltIn */
+code span.ex { } /* Extension */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.at { color: #7d9029; } /* Attribute */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="style.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <meta name="viewport" content="width=device-width">
+</head>
+<body>
+<p>
+<h1>电子书模板</h1>
+<p>Phodal Huang</p>
+</p>
+<div style="width:800px">
+<nav id="TOC">
+<ul>
+<li><a href="#大前端-android-开发日记一了解基本业务与技术栈">大前端 Android 开发日记一：了解基本业务与技术栈</a><ul>
+<li><a href="#picasso"><strong>Picasso</strong></a></li>
+<li><a href="#retrofit2"><strong>Retrofit2</strong></a></li>
+<li><a href="#otto"><strong>otto</strong></a></li>
+<li><a href="#rxjava2"><strong>RxJava2</strong></a></li>
+<li><a href="#butterknife">ButterKnife</a></li>
+<li><a href="#dagger">Dagger</a></li>
+</ul></li>
+<li><a href="#大前端-android-开发日记二编写-mvp-依赖流入的-activity">大前端 Android 开发日记二：编写 MVP + 依赖流入的 Activity</a><ul>
+<li><a href="#创建一个空白页">1.创建一个空白页</a></li>
+<li><a href="#首页打开列表页">2.首页打开列表页</a></li>
+<li><a href="#将参数传递到详情页">3.将参数传递到详情页</a></li>
+<li><a href="#在详情页去获取数据">4.在详情页去获取数据</a></li>
+<li><a href="#展示数据">5.展示数据</a></li>
+</ul></li>
+<li><a href="#大前端-android-开发日记三使用-viewholder-与-xml-编写-ui">大前端 Android 开发日记三：使用 ViewHolder 与 XML 编写 UI</a><ul>
+<li><a href="#viewholder-的事件">ViewHolder 的事件</a></li>
+<li><a href="#获取-android-device-uuid">获取 Android Device UUID</a></li>
+<li><a href="#实现-android-后退按钮">实现 Android 后退按钮</a></li>
+<li><a href="#矢量图形vector-path">矢量图形：Vector Path</a></li>
+<li><a href="#scrollview">ScrollView</a></li>
+</ul></li>
+<li><a href="#大前端-android-开发日记四toolbar-问题及测试">大前端 Android 开发日记四：Toolbar 问题及测试</a><ul>
+<li><a href="#模块化-apk-的-toolbar-后退按钮">模块化 APK 的 Toolbar 后退按钮</a></li>
+<li><a href="#android-处理-toolbar-后退">Android 处理 Toolbar 后退</a></li>
+<li><a href="#测试">测试</a></li>
+</ul></li>
+<li><a href="#大前端-android-开发日记五代码重构">大前端 Android 开发日记五：代码重构</a><ul>
+<li><a href="#重构-deviceuuid-存储">重构 DeviceUUID 存储</a></li>
+<li><a href="#android-后退按钮图片">Android 后退按钮图片</a></li>
+<li><a href="#dagger-的-component-注入多个">Dagger 的 Component 注入多个</a></li>
+<li><a href="#intent-传递列表">intent 传递列表</a></li>
+<li><a href="#自定义-relativelayout-组件">自定义 RelativeLayout 组件</a></li>
+<li><a href="#右箭头">右箭头</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="大前端-android-开发日记一了解基本业务与技术栈">大前端 Android 开发日记一：了解基本业务与技术栈</h1>
+<p>初来的第一天，由项目的开发人员及业务人员，介绍了项目的业务知识。由于产权限制，这里就不多说业务相关的知识了。</p>
+<p>简单的记录一下，项目所用到的 Android 技术栈。</p>
+<h2 id="picasso"><strong>Picasso</strong></h2>
+<p>Picasso 是Square公司开源的一个Android图形缓存库，可以实现图片下载和缓存功能。官网地址: http://square.github.io/picasso/</p>
+<p>其使用方式也很简单：</p>
+<pre><code>Picasso.with(context).load(&quot;http://i.imgur.com/DvpvklR.png&quot;).into(imageView);</code></pre>
+<h2 id="retrofit2"><strong>Retrofit2</strong></h2>
+<p>Retrofit2 是一个用于 Android 和 Java 平台的类型安全的网络框架。</p>
+<p>可以支持这种路径的参数获取：</p>
+<pre><code>public interface GitHubService {
+  @GET(&quot;users/{user}/repos&quot;)
+  Call&lt;List&lt;Repo&gt;&gt; listRepos(@Path(&quot;user&quot;) String user);
+}</code></pre>
+<p>以及：</p>
+<pre><code>Retrofit retrofit = new Retrofit.Builder()
+    .baseUrl(&quot;https://api.github.com/&quot;)
+    .build();
+
+GitHubService service = retrofit.create(GitHubService.class);</code></pre>
+<p>我们唯一要做的比较麻烦的可能是构建模型。</p>
+<h2 id="otto"><strong>otto</strong></h2>
+<p>Otto 是 square 公司出的一个事件库（pub/sub模式），用来简化应用程序组件之间的通讯。如下是一个简单的例子：</p>
+<pre><code>@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+    View button = rootView.findViewById(R.id.fragmentbutton);
+    button.setOnClickListener(new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            bus.post(&quot;Hello from the Fragment&quot;);
+        }
+    });
+    bus.register(this);
+    return rootView;
+}
+
+@Subscribe
+public void getMessage(String message) {
+    Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+}</code></pre>
+<h2 id="rxjava2"><strong>RxJava2</strong></h2>
+<p>RxJava 是一个 Java VM implementation of Reactive Extensions: a library for composing asynchronous and event-based programs by using observable sequences。</p>
+<blockquote>
+<p>一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。</p>
+</blockquote>
+<p>总之就是这样的：</p>
+<pre><code>Observable.zip(getCricketFansObservable(), getFootballFansObservable(),
+        new BiFunction&lt;List&lt;User&gt;, List&lt;User&gt;, List&lt;User&gt;&gt;() {
+            @Override
+            public List&lt;User&gt; apply(List&lt;User&gt; cricketFans, List&lt;User&gt; footballFans) throws Exception {
+                return Utils.filterUserWhoLovesBoth(cricketFans, footballFans);
+            }
+        })
+        // Run on a background thread
+        .subscribeOn(Schedulers.io())
+        // Be notified on the main thread
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(getObserver());</code></pre>
+<h2 id="butterknife">ButterKnife</h2>
+<p>ButterKnife 是一个使用注解方式来为 Android 中的 View 视图绑定字段和方法，能通过自动解析注解来搜索资源文件并赋值给 Activity 中的字段。</p>
+<p>简单的来说就是简化我们的绑定：</p>
+<pre><code>class ExampleActivity extends Activity {
+  @BindView(R.id.title) TextView title;
+  @BindView(R.id.subtitle) TextView subtitle;
+  @BindView(R.id.footer) TextView footer;
+
+  @Override public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.simple_activity);
+    ButterKnife.bind(this);
+    // TODO Use fields...
+  }
+}</code></pre>
+<h2 id="dagger">Dagger</h2>
+<p>Dagger 是目前最流行的专为 Android 设计的依赖注入函数库。</p>
+<p>就是有些复杂：</p>
+<pre><code>@Module(injects = {App.class})
+public class AppModule {
+
+    private App app;
+
+    public AppModule(App app) {
+        this.app = app;
+    }
+
+    @Provides @Singleton public Context provideApplicationContext() {
+        return app;
+    }
+}</code></pre>
+<h1 id="大前端-android-开发日记二编写-mvp-依赖流入的-activity">大前端 Android 开发日记二：编写 MVP + 依赖流入的 Activity</h1>
+<p>在这一天里，我接到了一张新的业务卡，从技术上来说就是：从列表页打开一个详情页。</p>
+<p>而详情页的入口有两部分，一个是在首页，一个是在列表页。而首页是一个独立的 APK，因此在启动方式就是采用 Actvitiy 来启动。</p>
+<p>因此，我做了一个简单的 Task，来做这个卡：</p>
+<ol type="1">
+<li>创建一个空白的详情页</li>
+<li>从首页打开详情页</li>
+<li>将参数传递到详情页</li>
+<li>在详情页去获取数据</li>
+<li>展示数据</li>
+<li>优化 UI（留给第二天）</li>
+</ol>
+<h2 id="创建一个空白页">1.创建一个空白页</h2>
+<p>这一步就比较简单了，网上找个 Hello, world 放置一下就可以了：</p>
+<p>首先在 <code>AndroidManifest.xml</code> 中添加我们的入口 actvity：</p>
+<pre><code>       &lt;activity
+          android:name=&quot;.DetailActivity&quot;
+          android:label=&quot;@string/title_activity_main&quot; &gt;
+
+          &lt;intent-filter&gt;
+             &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+             &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot;/&gt;
+          &lt;/intent-filter&gt;
+
+       &lt;/activity&gt;</code></pre>
+<p>然后创建好这个 activity：</p>
+<pre><code>package com.example.helloworld;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.support.v4.app.NavUtils;
+
+public class MainActivity extends Activity {
+
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.activity_main);
+   }
+
+   @Override
+   public boolean onCreateOptionsMenu(Menu menu) {
+      getMenuInflater().inflate(R.menu.activity_main, menu);
+      return true;
+   }
+}</code></pre>
+<p>以及对应的 Layout：</p>
+<pre><code>&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+   xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+   android:layout_width=&quot;match_parent&quot;
+   android:layout_height=&quot;match_parent&quot; &gt;
+
+   &lt;TextView
+      android:layout_width=&quot;wrap_content&quot;
+      android:layout_height=&quot;wrap_content&quot;
+      android:layout_centerHorizontal=&quot;true&quot;
+      android:layout_centerVertical=&quot;true&quot;
+      android:padding=&quot;@dimen/padding_medium&quot;
+      android:text=&quot;@string/hello_world&quot;
+      tools:context=&quot;.MainActivity&quot; /&gt;
+
+&lt;/RelativeLayout&gt;</code></pre>
+<h2 id="首页打开列表页">2.首页打开列表页</h2>
+<p>这部分的代码比较简单，如下所示：</p>
+<pre><code>Intent intent = new Intent();
+intent.setComponent(new ComponentName(&quot;com.example&quot;, &quot;com.example.MyExampleActivity&quot;));
+startActivity(intent);</code></pre>
+<p>不过，我一开始写的代码是错的。</p>
+<h2 id="将参数传递到详情页">3.将参数传递到详情页</h2>
+<p>这一步也不难，就是先 putExtras 再 getExtras：</p>
+<pre><code>Intent intent = new Intent();
+intent.setComponent(new ComponentName(&quot;com.example&quot;, &quot;com.example.MyExampleActivity&quot;));
+intent.putExtra(&quot;id&quot;, id);            
+startActivity(intent);</code></pre>
+<p>再在我们的 Activity 中获取参数：</p>
+<pre><code>    String newString;
+    Bundle extras = getIntent().getExtras();
+    if (extras == null) {
+        newString = &quot;123&quot;;
+    } else {
+        newString = extras.getString(&quot;id&quot;);
+    }</code></pre>
+<h2 id="在详情页去获取数据">4.在详情页去获取数据</h2>
+<p>我本来以为这一部分很简单，但是没想到的是我们的 Android 项目是遵循 Google 推荐的 MVP 架构。可以在 Google Samples 看到一个相关的示例：<a href="https://github.com/googlesamples/android-architecture/tree/todo-mvp">todo-mvp</a></p>
+<p>按照这个架构，我们需要有：</p>
+<ul>
+<li>Model，在其中定义我们的数据结构，对应于后台的 API</li>
+<li>View，定义显示相关的逻辑，具体逻辑会由 Activity 实现</li>
+<li>Presenter，处理事件，检索 Model 获取数据等等</li>
+<li>Repository，作为数据源，来处理远程或者本地的数据</li>
+</ul>
+<p>让我们看看这个 Todo 的 Model：</p>
+<pre><code>@Entity(tableName = &quot;tasks&quot;)
+public final class Task {
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = &quot;entryid&quot;)
+    private final String mId;
+
+    @Nullable
+    @ColumnInfo(name = &quot;title&quot;)
+    private final String mTitle;
+
+    @Nullable
+    @ColumnInfo(name = &quot;description&quot;)
+    private final String mDescription;
+
+    @ColumnInfo(name = &quot;completed&quot;)
+    private final boolean mCompleted;
+
+    @Ignore
+    public Task(@Nullable String title, @Nullable String description) {
+        this(title, description, UUID.randomUUID().toString(), false);
+    }
+    ...
+}</code></pre>
+<p>如下是一个 View 的示例：</p>
+<pre><code>package com.example.android.architecture.blueprints.todoapp;
+
+public interface BaseView&lt;T&gt; {
+
+    void setPresenter(T presenter);
+
+}</code></pre>
+<p>下面是一个 Presenter 的示例：</p>
+<pre><code>package com.example.android.architecture.blueprints.todoapp;
+
+public interface BasePresenter {
+
+    void start();
+
+}</code></pre>
+<p>对应的还有处理请求的 Repository：</p>
+<pre><code>public class TasksRepository implements TasksDataSource {
+
+    ...
+        @Override
+    public void getTasks(@NonNull final LoadTasksCallback callback) {
+
+    })
+}</code></pre>
+<p>而为了使用 Dagger 来做依赖注入，还需要额外的：</p>
+<ul>
+<li>Module</li>
+<li>Component</li>
+</ul>
+<p>如下是一个 Dagger 的简单示例（来源：<a href="http://codethink.me/2015/08/06/dependency-injection-with-dagger-2/">使用Dagger 2进行依赖注入</a>）：</p>
+<p>Module 用于提供依赖：</p>
+<pre><code>@Module
+public class ActivityModule {
+    @Provides UserModel provideUserModel() {
+        return new UserModel();
+    }
+}</code></pre>
+<p>component 负责连接提供依赖和消费依赖对象：</p>
+<pre><code>@Component(modules = ActivityModule.class)
+public interface ActivityComponent {
+    void inject(MainActivity activity);
+}</code></pre>
+<p>然后就可以愉快地使用了：</p>
+<pre><code>    @Inject
+    UserModel userModel;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        ...
+        mActivityComponent = DaggerActivityComponent.builder().activityModule(new ActivityModule()).build();
+        mActivityComponent.inject(this);
+    })</code></pre>
+<h2 id="展示数据">5.展示数据</h2>
+<p>当我们 Activity 将会继承自上面的 View，以及实现对应的逻辑：</p>
+<pre><code>@Override
+public void showDetail(TaskDetailModel task) {
+    ViewHolder viewHolder = new ViewHolder(content);
+    ViewHolder.populate(task);
+}</code></pre>
+<p>我们将对应的展示交由 ViewHoler 来实现：</p>
+<pre><code>public class ViewHolder extends RecyclerView.ViewHolder {
+
+    private final View view;
+
+
+    @BindView(R.id.webview)
+    WebView webview;
+
+    public InformationDetailViewHolder(View view) {
+        super(view);
+        this.view = view;
+        ButterKnife.bind(this, this.view);
+    }
+
+    void populate(InformationDetailModel InformationDetail) {
+        webview.loadData(InformationDetail.getContent(), &quot;text/html; charset=utf-8&quot;, &quot;UTF-8&quot;);
+    }
+}</code></pre>
+<p>就是这么复杂。</p>
+<h1 id="大前端-android-开发日记三使用-viewholder-与-xml-编写-ui">大前端 Android 开发日记三：使用 ViewHolder 与 XML 编写 UI</h1>
+<p>在之前的两天里，我花了大量的时间在熟悉系统的架构上。因此，在这一天里，我主要花费的时间都是在编写 UI 上，以及对应的一些事件处理。</p>
+<h2 id="viewholder-的事件">ViewHolder 的事件</h2>
+<p>按官网的说明：</p>
+<blockquote>
+<p>一个 ViewHolder 描述一个项目视图和关于它在 RecyclerView 中的位置的元数据。</p>
+</blockquote>
+<p>对于我使用例子是，我是在我的列表中的条目中使用 ViewHolder，因此每个条目都是单一的 view。这是一个示例的 ViewHolder，我在它的构建类里添加了一个 onClick 事件：</p>
+<pre class="sourceCode java" id="cb23"><code class="sourceCode java"><div class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw">public</span> <span class="kw">class</span> RelatedViewHolder <span class="kw">extends</span> RecyclerView.<span class="fu">ViewHolder</span> {</div>
+<div class="sourceLine" id="cb23-2" data-line-number="2">    <span class="kw">public</span> <span class="fu">RelatedNewsViewHolder</span>(<span class="bu">View</span> view) {</div>
+<div class="sourceLine" id="cb23-3" data-line-number="3">        <span class="kw">super</span>(view);</div>
+<div class="sourceLine" id="cb23-4" data-line-number="4">        <span class="kw">this</span>.<span class="fu">view</span> = view;</div>
+<div class="sourceLine" id="cb23-5" data-line-number="5">        ButterKnife.<span class="fu">bind</span>(<span class="kw">this</span>, view);</div>
+<div class="sourceLine" id="cb23-6" data-line-number="6"></div>
+<div class="sourceLine" id="cb23-7" data-line-number="7">        <span class="fu">onClick</span>(view);</div>
+<div class="sourceLine" id="cb23-8" data-line-number="8">    }</div>
+<div class="sourceLine" id="cb23-9" data-line-number="9">}</div></code></pre>
+<p>而在这个 Click 事件里，启动了一个新的 Activity：</p>
+<pre><code>public void onClick(View itemView) {
+    itemView.setOnClickListener(view -&gt; {
+        Intent intent = new Intent();
+        Context context = itemView.getContext();
+
+        intent.setComponent(new ComponentName(context, DetailActivity.class));
+        context.startActivity(intent);
+    });
+}</code></pre>
+<p>在这里面里，我们会启动一个新的 Activity。</p>
+<h2 id="获取-android-device-uuid">获取 Android Device UUID</h2>
+<p>在实现的过程中，还需要一个获取设备的 UUID。DeviceID 有一个问题时，用户可能不会同意获取，于是还需要一个新的 UUID。为了简化这个逻辑，直接使用 Google 推荐的 UUID，而不是再去用 DeviceID。</p>
+<pre><code>public class DeviceUtil {
+    private static String uniqueID = null;
+    private static final String PREF_UNIQUE_ID = &quot;PREF_UNIQUE_ID&quot;;
+
+    public synchronized static String getDeviceUUID(Context context) {
+        if (uniqueID == null) {
+            SharedPreferences sharedPrefs = context.getSharedPreferences(
+                    PREF_UNIQUE_ID, Context.MODE_PRIVATE);
+            uniqueID = sharedPrefs.getString(PREF_UNIQUE_ID, null);
+            if (uniqueID == null) {
+                uniqueID = UUID.randomUUID().toString();
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.putString(PREF_UNIQUE_ID, uniqueID);
+                editor.apply();
+            }
+        }
+        return uniqueID;
+    }
+}</code></pre>
+<p>在这个逻辑里，会判断机器上是否存储有之前的 UUID。如果没有的话，就生成一个新的；反之，则从 SharedPreferences 中获取一份。</p>
+<h2 id="实现-android-后退按钮">实现 Android 后退按钮</h2>
+<p>由于打开的是新的页面，因此需要自己做一个 Toolbar，相应的配置代码如下所示：</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+
+&lt;android.support.v7.widget.Toolbar xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;
+    xmlns:toolbar=&quot;http://schemas.android.com/apk/res-auto&quot;
+    android:id=&quot;@+id/toolbar&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;?attr/actionBarSize&quot;
+    android:background=&quot;?attr/colorPrimaryDark&quot;
+    android:gravity=&quot;center&quot;
+    app:theme=&quot;@style/ToolbarColoredBackArrow&quot;
+    toolbar:titleTextColor=&quot;@color/cmb_white&quot;&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/toolbar_title&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_gravity=&quot;center&quot;
+        android:text=&quot;xxx&quot; /&gt;
+
+&lt;/android.support.v7.widget.Toolbar&gt;</code></pre>
+<p>接着，定制一个新的返回按钮标题：</p>
+<pre><code>&lt;style name=&quot;ToolbarColoredBackArrow&quot; parent=&quot;AppTheme&quot;&gt;
+    &lt;item name=&quot;android:textColorSecondary&quot;&gt;#FFFFFF&lt;/item&gt;
+&lt;/style&gt;</code></pre>
+<p>然后，导入这个 xml：</p>
+<pre><code>&lt;include layout=&quot;@layout/toolbar&quot; /&gt;</code></pre>
+<p>同时在我们的 Activity 中添加对应的事件处理：</p>
+<pre><code>@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == android.R.id.home) {
+        onBackPressed();
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+}</code></pre>
+<h2 id="矢量图形vector-path">矢量图形：Vector Path</h2>
+<p>还遇到一个很有遇到的问题是，可以在 Android 中使用类似于 SVG 的 Vector：</p>
+<pre><code>&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+     android:height=&quot;64dp&quot;
+     android:width=&quot;64dp&quot;
+     android:viewportHeight=&quot;600&quot;
+     android:viewportWidth=&quot;600&quot; &gt;
+     &lt;group
+         android:name=&quot;rotationGroup&quot;
+         android:pivotX=&quot;300.0&quot;
+         android:pivotY=&quot;300.0&quot;
+         android:rotation=&quot;45.0&quot; &gt;
+         &lt;path
+             android:name=&quot;v&quot;
+             android:fillColor=&quot;#000000&quot;
+             android:pathData=&quot;M300,70 l 0,-70 70,70 0,0 -70,70z&quot; /&gt;
+     &lt;/group&gt;
+ &lt;/vector&gt;</code></pre>
+<p>它也是类似的使用 Path，来描述 UI。</p>
+<h2 id="scrollview">ScrollView</h2>
+<p>最后，花费了一些时间在编写一个 ScrollView 上，结合了之前上面的 Toolbar 等内容：</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:background=&quot;@color/cmb_white&quot;
+    android:orientation=&quot;vertical&quot;&gt;
+
+    &lt;include layout=&quot;@layout/toolbar&quot; /&gt;
+
+    &lt;ScrollView
+        android:layout_width=&quot;match_parent&quot;
+        android:layout_height=&quot;match_parent&quot;
+        android:scrollbars=&quot;none&quot;&gt;
+
+        &lt;LinearLayout
+            android:id=&quot;@+id/detail&quot;
+            android:layout_width=&quot;match_parent&quot;
+            android:layout_height=&quot;match_parent&quot;
+            android:orientation=&quot;vertical&quot;&gt;
+
+        &lt;/LinearLayout&gt;
+    &lt;/ScrollView&gt;
+&lt;/LinearLayout&gt;</code></pre>
+<h1 id="大前端-android-开发日记四toolbar-问题及测试">大前端 Android 开发日记四：Toolbar 问题及测试</h1>
+<p>在之前的两天里，已经实现了大部分的功能。但是，仍然遇到了一些 Toolbar 的问题，除了努力地解决这个问题之外，还写了几个简单的测试。</p>
+<h2 id="模块化-apk-的-toolbar-后退按钮">模块化 APK 的 Toolbar 后退按钮</h2>
+<p>由于应用程序采用的是类似于 RePlugin 的插件化机制。因为在使用样式来将 Toolbar 改为白色的时候，在另外一个 APK 里没有对应的资源。于是，便想着将 Toolbar 改成了个组件：</p>
+<pre><code>&lt;RelativeLayout
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;56dp&quot;
+    android:background=&quot;@color/black&quot;
+    android:gravity=&quot;center_vertical&quot;&gt;
+
+    &lt;include layout=&quot;@layout/back_button&quot; /&gt;
+
+    &lt;TextView
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:padding=&quot;@dimen/length_16&quot;
+        android:text=&quot;@string/something&quot;/&gt;
+
+&lt;/RelativeLayout&gt;</code></pre>
+<p>对应的后退按钮：</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;LinearLayout
+    xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:id=&quot;@+id/fast_back&quot;
+    android:layout_width=&quot;wrap_content&quot;
+    android:layout_height=&quot;wrap_content&quot;
+    android:gravity=&quot;center&quot;
+    android:orientation=&quot;horizontal&quot;&gt;
+
+    &lt;ImageView
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:paddingEnd=&quot;@dimen/length_24&quot;
+        android:paddingStart=&quot;@dimen/length_16&quot;
+        android:paddingTop=&quot;@dimen/length_16&quot;
+        android:paddingBottom=&quot;@dimen/length_16&quot;
+        android:src=&quot;@drawable/back_icon&quot;/&gt;
+
+&lt;/LinearLayout&gt;</code></pre>
+<p>这样在另外一个 APK 中，只需要有相应的图片资源即可。在 Code Diff 的时候，被告知这个可以用图片来实现——做的时候，忘记了这个。只能明天再去改吧。</p>
+<h2 id="android-处理-toolbar-后退">Android 处理 Toolbar 后退</h2>
+<p>对应的处理后退的逻辑，也由：</p>
+<pre><code>@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == android.R.id.home) {
+        onBackPressed();
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+}</code></pre>
+<p>变成了简单的后退了。</p>
+<pre><code>@OnClick(R.id.fast_back)
+void clickBackText() {
+    onBackPressed();
+}</code></pre>
+<h2 id="测试">测试</h2>
+<p>完成了对 Toolbar 的控制之后，我便写了一个测试：</p>
+<pre><code>    @Mock
+    private DetailView detailView;
+    @Mock
+    private DetailRepository detailRepository;
+
+    private DetailPresenter detailPresenter;
+
+    @Test
+    public void shouldShowDetail() throws Exception {
+        DetailModel detail = mock(DetailModel.class);
+        when(detail.getText()).thenReturn(anyListOf(Related.class));
+
+        detailPresenter.onLoadDetailSuccess(detail);
+        verify(detailView).showDetail(any(DetailModel.class));
+    }</code></pre>
+<p>在这个测试里，简单的测试了一个回调成功时，会调用显示详情的逻辑。</p>
+<h1 id="大前端-android-开发日记五代码重构">大前端 Android 开发日记五：代码重构</h1>
+<ol type="1">
+<li>unused filted</li>
+<li>测试 null</li>
+<li>info -&gt; information</li>
+<li>uuid</li>
+<li>toolbar Icon</li>
+<li>UI 组件</li>
+</ol>
+<h2 id="重构-deviceuuid-存储">重构 DeviceUUID 存储</h2>
+<p>使用公共类：</p>
+<pre><code>public class DeviceUtil {
+    private static String uniqueID = null;
+
+    public synchronized static String getDeviceUUID(Context context) {
+        PreferencesHelper sharedPrefs = new PreferencesHelper(context);
+        uniqueID = sharedPrefs.getDeviceUUIDPref();
+        if (uniqueID == null) {
+            uniqueID = UUID.randomUUID().toString();
+            sharedPrefs.setDeviceUUIDPref(uniqueID);
+        }
+        return uniqueID;
+    }
+}</code></pre>
+<pre><code>@SuppressLint(&quot;ApplySharedPref&quot;)
+public void setDeviceUUIDPref(String value) {
+    pref.edit().putString(PREF_UNIQUE_ID, value).commit();
+}
+
+@SuppressLint(&quot;ApplySharedPref&quot;)
+public String getDeviceUUIDPref() {
+    return pref.getString(PREF_UNIQUE_ID, null);
+}</code></pre>
+<h2 id="android-后退按钮图片">Android 后退按钮图片</h2>
+<pre><code>setSupportActionBar(toolbar);
+ActionBar actionBar = getSupportActionBar();
+if (actionBar != null) {
+    actionBar.setDisplayHomeAsUpEnabled(true);
+    actionBar.setDisplayShowTitleEnabled(false);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setHomeAsUpIndicator(R.drawable.back_icon);
+}</code></pre>
+<h2 id="dagger-的-component-注入多个">Dagger 的 Component 注入多个</h2>
+<pre><code>@PerActivity
+@Component(dependencies = ApplicationComponent.class, modules = HomeModule.class)
+public interface HomeComponent {
+
+    void inject(HomeFragment homeFragment);
+
+    void inject(DetailActivity detailActivity);
+}</code></pre>
+<h2 id="intent-传递列表">intent 传递列表</h2>
+<pre><code>public class Model implements Serializable {
+
+}</code></pre>
+<pre><code>intent.putExtra(&quot;model&quot;, (Serializable) model);</code></pre>
+<pre><code>List&lt;Model&gt; analyses = null;
+Bundle extras = getIntent().getExtras();
+if (extras == null) {
+    onBackPressed();
+} else {
+    analyses = (List&lt;Model&gt;) getIntent().getSerializableExtra(&quot;model&quot;);
+}</code></pre>
+<h2 id="自定义-relativelayout-组件">自定义 RelativeLayout 组件</h2>
+<h2 id="右箭头">右箭头</h2>
+<pre><code>&lt;android.support.v7.widget.AppCompatImageView
+    android:id=&quot;@+id/chevron_right&quot;
+    android:visibility=&quot;gone&quot;
+    android:layout_width=&quot;wrap_content&quot;
+    android:layout_height=&quot;wrap_content&quot;
+    android:layout_alignParentEnd=&quot;true&quot;
+    android:layout_centerVertical=&quot;true&quot;
+    app:srcCompat=&quot;@drawable/ic_chevron_right&quot; /&gt;</code></pre>
+</body>
+</html>
