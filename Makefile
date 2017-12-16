@@ -43,7 +43,7 @@ pdf: markdown
 		--template=template/template.tex \
 		-smart \
 		--toc \
-		--latex-engine=`which xelatex`
+		--pdf-engine=`which xelatex`
 
 mobi: epub
 	# Symlink bin: ln -s /path/to/kindlegen /usr/local/bin
