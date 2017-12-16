@@ -1,6 +1,6 @@
 include_dir=build
 source=chapters/*.md
-title='电子书模板'
+title='一个大前端的 Android 开发日记'
 filename='ebook'
 
 

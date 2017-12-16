@@ -1,2 +1,2 @@
-% 大前端的 Android 开发日记
+% 一个大前端的 Android 开发日记
 % Phodal Huang
