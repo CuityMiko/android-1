@@ -106,12 +106,12 @@ code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Infor
 <li><a href="#测试">测试</a></li>
 </ul></li>
 <li><a href="#大前端-android-开发日记五代码重构">大前端 Android 开发日记五：代码重构</a><ul>
+<li><a href="#android-manifest.xml">Android Manifest.xml</a></li>
 <li><a href="#重构-deviceuuid-存储">重构 DeviceUUID 存储</a></li>
 <li><a href="#android-后退按钮图片">Android 后退按钮图片</a></li>
 <li><a href="#dagger-的-component-注入多个">Dagger 的 Component 注入多个</a></li>
-<li><a href="#intent-传递列表">intent 传递列表</a></li>
-<li><a href="#自定义-relativelayout-组件">自定义 RelativeLayout 组件</a></li>
-<li><a href="#右箭头">右箭头</a></li>
+<li><a href="#android-intent-传递-list">Android intent 传递 LIST</a></li>
+<li><a href="#android-列表箭头图片">Android 列表箭头图片</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -612,16 +612,48 @@ void clickBackText() {
     }</code></pre>
 <p>在这个测试里，简单的测试了一个回调成功时，会调用显示详情的逻辑。</p>
 <h1 id="大前端-android-开发日记五代码重构">大前端 Android 开发日记五：代码重构</h1>
+<p>本来在上一天里，我已经完成了业务的功能。在 Code Review 的时候，代码中有一些不符合 Android 的实践，又或者是有更好的方式。</p>
+<p>这些不好的 Code Smell，比如说：</p>
 <ol type="1">
-<li>unused filted</li>
-<li>测试 null</li>
-<li>info -&gt; information</li>
-<li>uuid</li>
-<li>toolbar Icon</li>
-<li>UI 组件</li>
+<li>在 AndroidManifest.xml 中有没有使用的 Intent Filted</li>
+<li>测试的时候，漏掉了 null 的情况</li>
+<li>其它代码中使用了单词缩写，应该改为全称</li>
+<li>代码中已经有一个 SharedPreferences 工具类</li>
+<li>Toolbar （回退按钮）的图标可以在 Java 代码里设置</li>
 </ol>
+<p>花了一个小时重构完之后，我便开始写新的业务卡。</p>
+<h2 id="android-manifest.xml">Android Manifest.xml</h2>
+<p>由于事先不是很了解 Android 的一些 xml 配置，便直接复制了原先的 MainActivity。当然，这些代码是多余的：</p>
+<pre><code>&lt;intent-filter&gt;
+    &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+    &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+&lt;/intent-filter&gt;</code></pre>
+<p>按 Android 官方的文档：</p>
+<blockquote>
+<p>应用的核心组件（例如其 Activity、服务和广播接收器）由 intent 激活。Intent 是一系列用于描述所需操作的信息（Intent 对象），其中包括要执行操作的数据、应执行操作的组件类别以及其他相关说明。Android 系统会查找合适的组件来响应 intent，根据需要启动组件的新实例，并将其传递到 Intent 对象。</p>
+</blockquote>
+<blockquote>
+<p>组件将通过 intent 过滤器公布它们可响应的 intent 类型。由于Android 系统在启动某组件之前必须了解该组件可以处理的 intent，因此 intent 过滤器在清单中被指定为 <intent-filter> 元素。一个组件可有任意数量的过滤器，其中每个过滤器描述一种不同的功能。</p>
+</blockquote>
+<p>相关的解释如下</p>
+<ul>
+<li>android.intent.action.MAIN 决定应用程序最先启动的Activity</li>
+<li>android.intent.category.LAUNCHER 决定应用程序是否显示在程序列表里</li>
+</ul>
+<p>因此，便删了这两行代码。</p>
 <h2 id="重构-deviceuuid-存储">重构 DeviceUUID 存储</h2>
-<p>使用公共类：</p>
+<p>SharedPreferences API 是一种类似于 LocalStorage 的读写键值接口。最大的区别是，SharedPreferences 是以文件名来保存的。</p>
+<p>这就意味着我们需要从某个地方来放置一个文件名相关的变量，因此更好的方式是有一个 SharedPreferences 的公共类。它负责做这些相关的事件：</p>
+<pre><code>@SuppressLint(&quot;ApplySharedPref&quot;)
+public void setDeviceUUIDPref(String value) {
+    pref.edit().putString(PREF_UNIQUE_ID, value).commit();
+}
+
+@SuppressLint(&quot;ApplySharedPref&quot;)
+public String getDeviceUUIDPref() {
+    return pref.getString(PREF_UNIQUE_ID, null);
+}</code></pre>
+<p>然后，我们从来读取数据：</p>
 <pre><code>public class DeviceUtil {
     private static String uniqueID = null;
 
@@ -635,16 +667,11 @@ void clickBackText() {
         return uniqueID;
     }
 }</code></pre>
-<pre><code>@SuppressLint(&quot;ApplySharedPref&quot;)
-public void setDeviceUUIDPref(String value) {
-    pref.edit().putString(PREF_UNIQUE_ID, value).commit();
-}
-
-@SuppressLint(&quot;ApplySharedPref&quot;)
-public String getDeviceUUIDPref() {
-    return pref.getString(PREF_UNIQUE_ID, null);
-}</code></pre>
+<p>这样就可以保证，我们读取的是同一个文件。</p>
 <h2 id="android-后退按钮图片">Android 后退按钮图片</h2>
+<p>再回到那个 Android 后退按钮的图片问题，可以直接使用：</p>
+<pre><code>actionBar.setHomeAsUpIndicator(R.drawable.back_icon);</code></pre>
+<p>这样就可以设置上图片了：</p>
 <pre><code>setSupportActionBar(toolbar);
 ActionBar actionBar = getSupportActionBar();
 if (actionBar != null) {
@@ -654,6 +681,7 @@ if (actionBar != null) {
     actionBar.setHomeAsUpIndicator(R.drawable.back_icon);
 }</code></pre>
 <h2 id="dagger-的-component-注入多个">Dagger 的 Component 注入多个</h2>
+<p>因为新建了一个 Activity，就需要注入新的 Component：</p>
 <pre><code>@PerActivity
 @Component(dependencies = ApplicationComponent.class, modules = HomeModule.class)
 public interface HomeComponent {
@@ -662,20 +690,23 @@ public interface HomeComponent {
 
     void inject(DetailActivity detailActivity);
 }</code></pre>
-<h2 id="intent-传递列表">intent 传递列表</h2>
+<h2 id="android-intent-传递-list">Android intent 传递 LIST</h2>
+<p>在实现新业务的过程中，还遇到一个使用 intent 传递 LIST 的情形，一种比较简单的方式是使用 Serializable 来实现：</p>
 <pre><code>public class Model implements Serializable {
 
 }</code></pre>
+<p>然后 put 进去：</p>
 <pre><code>intent.putExtra(&quot;model&quot;, (Serializable) model);</code></pre>
-<pre><code>List&lt;Model&gt; analyses = null;
+<p>接着，再用的地方转换一下，读取出来：</p>
+<pre><code>List&lt;Model&gt; model = null;
 Bundle extras = getIntent().getExtras();
 if (extras == null) {
     onBackPressed();
 } else {
-    analyses = (List&lt;Model&gt;) getIntent().getSerializableExtra(&quot;model&quot;);
+    model = (List&lt;Model&gt;) getIntent().getSerializableExtra(&quot;model&quot;);
 }</code></pre>
-<h2 id="自定义-relativelayout-组件">自定义 RelativeLayout 组件</h2>
-<h2 id="右箭头">右箭头</h2>
+<h2 id="android-列表箭头图片">Android 列表箭头图片</h2>
+<p>在实现一个列表的时候，用到了一个箭头。这个箭头正好要水平居中，你懂的。就有了如下的 XML：</p>
 <pre><code>&lt;android.support.v7.widget.AppCompatImageView
     android:id=&quot;@+id/chevron_right&quot;
     android:visibility=&quot;gone&quot;
