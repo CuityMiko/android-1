@@ -877,10 +877,17 @@ Android 列表箭头图片
 ```
 
 
+大前端 Android 开发日记六：使用 MPAndroidChat 开发图表应用
+===
 
+在完成了基本的业务功能之后，我开始去画相应的图表。这不是一件简单的事，尽管已经有了 MPAndroidChart 这样的图表工具。但是显然，它带来的问题，可能比解决的问题还多。
 
-自定义 Layout
+这一天做的事情比较少，主要是在做（学习，边做边学）图表相关的内容。
+
+使用 Java 编写 Layout
 ---
+
+在这之前，我完全不知道，怎么用 Java 代码去写一个自定义的布局，即如下的示例：
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
@@ -897,37 +904,44 @@ Android 列表箭头图片
 </LinearLayout>
 ```
 
-```
-public class DescriptionLineChart extends RelativeLayout {
+这里的 LineChart 就是一个自定义的布局，下面就是对应的类。
 
-	public DescriptionLineChart(Context context, AttributeSet attr) {
+```
+public class LineChart extends RelativeLayout {
+
+	public LineChart(Context context, AttributeSet attr) {
 		super(context, attr);
 		view = LayoutInflater.from(context).inflate(R.layout.chart_layout, this);
 	}
 }
 ```
 
+在这里，我们就可以进行相应的元素操作了。
+
 MPAndroidChat Y 轴
 ---
 
+然后就是一些 MPAndroidChat 相应的设置。在 MPAndroidChat 中，传统的 Y 轴是叫 LeftAxis：
+
 ```
 YAxis leftAxis = chart.getAxisLeft();
-leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+leftAxis.removeAllLimitLines(); 
 leftAxis.enableGridDashedLine(10f, 10f, 0f);
 leftAxis.setDrawZeroLine(false);
 leftAxis.setDrawLimitLinesBehindData(true);
 ```
 
-X 轴设置
+MPAndroidChat X 轴设置
 ---
+
+以及 X 轴相关的一些设备：
 
 ```
 XAxis xAxis = chart.getXAxis();
 xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 xAxis.setDrawGridLines(true);
 xAxis.setGranularity(1f);
-xAxis.setLabelCount(5);
-IAxisValueFormatter xAxisFormatter = new DateAxisFormatter();
+IAxisValueFormatter CustomAxisFormatter = new DateAxisFormatter();
 xAxis.setValueFormatter(xAxisFormatter);
 xAxis.enableGridDashedLine(10f, 10f, 0f);
 ```
@@ -935,8 +949,9 @@ xAxis.enableGridDashedLine(10f, 10f, 0f);
 自定义 LABEL 显示
 ---
 
-```
+对应的，还有相应的格式化数据的逻辑：
 
+```
 public class CustomAxisFormatter implements IAxisValueFormatter {
     @Override
     public String getFormattedValue(float value, AxisBase axis) {
@@ -948,11 +963,15 @@ public class CustomAxisFormatter implements IAxisValueFormatter {
 ```
 
 
-
+大前端 Android 开发日记七：MPAndroidChat 填坑笔记
 ===
+
+继续上一天的 MPAndroidChat 填坑记录。
 
 MPAndroidChat 自定义 Marker
 ---
+
+首先，是自定义用来 Highlight 的 Marker。代码如下所示：
 
 ```
 @SuppressLint("ViewConstructor")
@@ -979,8 +998,10 @@ public class DescriptionChartMarkerView extends MarkerView {
 }
 ```
 
-圆圈
+Android Vector 圆圈
 ---
+
+在实现的过程中，需要画一个圆圈，也就有了：
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
@@ -989,7 +1010,7 @@ public class DescriptionChartMarkerView extends MarkerView {
     android:shape="oval">
 
     <solid
-        android:color="@color/cmb_green"/>
+        android:color="@color/green"/>
 
     <size
         android:width="@dimen/text_size_14"
@@ -998,8 +1019,10 @@ public class DescriptionChartMarkerView extends MarkerView {
 ```
 
 
-Charting 设置位置
+MPAndroidChat 生成位置
 ---
+
+一般来说，我们可以通过下面的代码来生成  Position 的位置，但是好似是不工作的：
 
 ```
 chart.getTransformer(chart.getLineData().mDataSets.get(0).getAxisDependency()).getPixelForValues(highlights[index].getX(), highlights[index].getY());
@@ -1007,6 +1030,8 @@ chart.getTransformer(chart.getLineData().mDataSets.get(0).getAxisDependency()).g
 
 添加子布局
 ---
+
+在上一步获取位置之后，接下来就是将对应的点绘制在坐标上：
 
 ```
 View marker = LayoutInflater.from(getContext()).inflate(R.layout.marker, view, false);

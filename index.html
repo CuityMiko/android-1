@@ -115,13 +115,17 @@ code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Infor
 <li><a href="#dagger-的-component-注入多个">Dagger 的 Component 注入多个</a></li>
 <li><a href="#android-intent-传递-list">Android intent 传递 LIST</a></li>
 <li><a href="#android-列表箭头图片">Android 列表箭头图片</a></li>
-<li><a href="#自定义-layout">自定义 Layout</a></li>
+</ul></li>
+<li><a href="#大前端-android-开发日记六使用-mpandroidchat-开发图表应用">大前端 Android 开发日记六：使用 MPAndroidChat 开发图表应用</a><ul>
+<li><a href="#使用-java-编写-layout">使用 Java 编写 Layout</a></li>
 <li><a href="#mpandroidchat-y-轴">MPAndroidChat Y 轴</a></li>
-<li><a href="#x-轴设置">X 轴设置</a></li>
+<li><a href="#mpandroidchat-x-轴设置">MPAndroidChat X 轴设置</a></li>
 <li><a href="#自定义-label-显示">自定义 LABEL 显示</a></li>
+</ul></li>
+<li><a href="#大前端-android-开发日记七mpandroidchat-填坑笔记">大前端 Android 开发日记七：MPAndroidChat 填坑笔记</a><ul>
 <li><a href="#mpandroidchat-自定义-marker">MPAndroidChat 自定义 Marker</a></li>
-<li><a href="#圆圈">圆圈</a></li>
-<li><a href="#charting-设置位置">Charting 设置位置</a></li>
+<li><a href="#android-vector-圆圈">Android Vector 圆圈</a></li>
+<li><a href="#mpandroidchat-生成位置">MPAndroidChat 生成位置</a></li>
 <li><a href="#添加子布局">添加子布局</a></li>
 </ul></li>
 </ul>
@@ -726,7 +730,11 @@ if (extras == null) {
     android:layout_alignParentEnd=&quot;true&quot;
     android:layout_centerVertical=&quot;true&quot;
     app:srcCompat=&quot;@drawable/ic_chevron_right&quot; /&gt;</code></pre>
-<h2 id="自定义-layout">自定义 Layout</h2>
+<h1 id="大前端-android-开发日记六使用-mpandroidchat-开发图表应用">大前端 Android 开发日记六：使用 MPAndroidChat 开发图表应用</h1>
+<p>在完成了基本的业务功能之后，我开始去画相应的图表。这不是一件简单的事，尽管已经有了 MPAndroidChart 这样的图表工具。但是显然，它带来的问题，可能比解决的问题还多。</p>
+<p>这一天做的事情比较少，主要是在做（学习，边做边学）图表相关的内容。</p>
+<h2 id="使用-java-编写-layout">使用 Java 编写 Layout</h2>
+<p>在这之前，我完全不知道，怎么用 Java 代码去写一个自定义的布局，即如下的示例：</p>
 <pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
 &lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
     android:layout_width=&quot;match_parent&quot;
@@ -739,31 +747,34 @@ if (extras == null) {
         android:layout_height=&quot;160dp&quot; /&gt;
 
 &lt;/LinearLayout&gt;</code></pre>
-<pre><code>public class DescriptionLineChart extends RelativeLayout {
+<p>这里的 LineChart 就是一个自定义的布局，下面就是对应的类。</p>
+<pre><code>public class LineChart extends RelativeLayout {
 
-    public DescriptionLineChart(Context context, AttributeSet attr) {
+    public LineChart(Context context, AttributeSet attr) {
         super(context, attr);
         view = LayoutInflater.from(context).inflate(R.layout.chart_layout, this);
     }
 }</code></pre>
+<p>在这里，我们就可以进行相应的元素操作了。</p>
 <h2 id="mpandroidchat-y-轴">MPAndroidChat Y 轴</h2>
+<p>然后就是一些 MPAndroidChat 相应的设置。在 MPAndroidChat 中，传统的 Y 轴是叫 LeftAxis：</p>
 <pre><code>YAxis leftAxis = chart.getAxisLeft();
-leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+leftAxis.removeAllLimitLines(); 
 leftAxis.enableGridDashedLine(10f, 10f, 0f);
 leftAxis.setDrawZeroLine(false);
 leftAxis.setDrawLimitLinesBehindData(true);</code></pre>
-<h2 id="x-轴设置">X 轴设置</h2>
+<h2 id="mpandroidchat-x-轴设置">MPAndroidChat X 轴设置</h2>
+<p>以及 X 轴相关的一些设备：</p>
 <pre><code>XAxis xAxis = chart.getXAxis();
 xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 xAxis.setDrawGridLines(true);
 xAxis.setGranularity(1f);
-xAxis.setLabelCount(5);
-IAxisValueFormatter xAxisFormatter = new DateAxisFormatter();
+IAxisValueFormatter CustomAxisFormatter = new DateAxisFormatter();
 xAxis.setValueFormatter(xAxisFormatter);
 xAxis.enableGridDashedLine(10f, 10f, 0f);</code></pre>
 <h2 id="自定义-label-显示">自定义 LABEL 显示</h2>
-<pre><code>
-public class CustomAxisFormatter implements IAxisValueFormatter {
+<p>对应的，还有相应的格式化数据的逻辑：</p>
+<pre><code>public class CustomAxisFormatter implements IAxisValueFormatter {
     @Override
     public String getFormattedValue(float value, AxisBase axis) {
         Date date = new Date((long) value);
@@ -771,8 +782,10 @@ public class CustomAxisFormatter implements IAxisValueFormatter {
         return sdf.format(date);
     }
 }</code></pre>
-<p>===</p>
+<h1 id="大前端-android-开发日记七mpandroidchat-填坑笔记">大前端 Android 开发日记七：MPAndroidChat 填坑笔记</h1>
+<p>继续上一天的 MPAndroidChat 填坑记录。</p>
 <h2 id="mpandroidchat-自定义-marker">MPAndroidChat 自定义 Marker</h2>
+<p>首先，是自定义用来 Highlight 的 Marker。代码如下所示：</p>
 <pre><code>@SuppressLint(&quot;ViewConstructor&quot;)
 public class DescriptionChartMarkerView extends MarkerView {
     private TextView content;
@@ -795,22 +808,25 @@ public class DescriptionChartMarkerView extends MarkerView {
         this.startIndex = startIndex;
     }
 }</code></pre>
-<h2 id="圆圈">圆圈</h2>
+<h2 id="android-vector-圆圈">Android Vector 圆圈</h2>
+<p>在实现的过程中，需要画一个圆圈，也就有了：</p>
 <pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
 &lt;shape
     xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
     android:shape=&quot;oval&quot;&gt;
 
     &lt;solid
-        android:color=&quot;@color/cmb_green&quot;/&gt;
+        android:color=&quot;@color/green&quot;/&gt;
 
     &lt;size
         android:width=&quot;@dimen/text_size_14&quot;
         android:height=&quot;@dimen/text_size_14&quot;/&gt;
 &lt;/shape&gt;</code></pre>
-<h2 id="charting-设置位置">Charting 设置位置</h2>
+<h2 id="mpandroidchat-生成位置">MPAndroidChat 生成位置</h2>
+<p>一般来说，我们可以通过下面的代码来生成 Position 的位置，但是好似是不工作的：</p>
 <pre><code>chart.getTransformer(chart.getLineData().mDataSets.get(0).getAxisDependency()).getPixelForValues(highlights[index].getX(), highlights[index].getY());</code></pre>
 <h2 id="添加子布局">添加子布局</h2>
+<p>在上一步获取位置之后，接下来就是将对应的点绘制在坐标上：</p>
 <pre><code>View marker = LayoutInflater.from(getContext()).inflate(R.layout.marker, view, false);
 RelativeLayout.LayoutParams params  = (RelativeLayout.LayoutParams) marker.getLayoutParams();
 
