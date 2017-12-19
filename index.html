@@ -115,6 +115,14 @@ code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Infor
 <li><a href="#dagger-的-component-注入多个">Dagger 的 Component 注入多个</a></li>
 <li><a href="#android-intent-传递-list">Android intent 传递 LIST</a></li>
 <li><a href="#android-列表箭头图片">Android 列表箭头图片</a></li>
+<li><a href="#自定义-layout">自定义 Layout</a></li>
+<li><a href="#mpandroidchat-y-轴">MPAndroidChat Y 轴</a></li>
+<li><a href="#x-轴设置">X 轴设置</a></li>
+<li><a href="#自定义-label-显示">自定义 LABEL 显示</a></li>
+<li><a href="#mpandroidchat-自定义-marker">MPAndroidChat 自定义 Marker</a></li>
+<li><a href="#圆圈">圆圈</a></li>
+<li><a href="#charting-设置位置">Charting 设置位置</a></li>
+<li><a href="#添加子布局">添加子布局</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -718,5 +726,101 @@ if (extras == null) {
     android:layout_alignParentEnd=&quot;true&quot;
     android:layout_centerVertical=&quot;true&quot;
     app:srcCompat=&quot;@drawable/ic_chevron_right&quot; /&gt;</code></pre>
+<h2 id="自定义-layout">自定义 Layout</h2>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:background=&quot;@color/cmb_white&quot;
+   
+    &lt;com.phodal.app.LineChart
+        android:id=&quot;@+id/line_chart&quot;
+        android:layout_width=&quot;match_parent&quot;
+        android:layout_height=&quot;160dp&quot; /&gt;
+
+&lt;/LinearLayout&gt;</code></pre>
+<pre><code>public class DescriptionLineChart extends RelativeLayout {
+
+    public DescriptionLineChart(Context context, AttributeSet attr) {
+        super(context, attr);
+        view = LayoutInflater.from(context).inflate(R.layout.chart_layout, this);
+    }
+}</code></pre>
+<h2 id="mpandroidchat-y-轴">MPAndroidChat Y 轴</h2>
+<pre><code>YAxis leftAxis = chart.getAxisLeft();
+leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+leftAxis.enableGridDashedLine(10f, 10f, 0f);
+leftAxis.setDrawZeroLine(false);
+leftAxis.setDrawLimitLinesBehindData(true);</code></pre>
+<h2 id="x-轴设置">X 轴设置</h2>
+<pre><code>XAxis xAxis = chart.getXAxis();
+xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+xAxis.setDrawGridLines(true);
+xAxis.setGranularity(1f);
+xAxis.setLabelCount(5);
+IAxisValueFormatter xAxisFormatter = new DateAxisFormatter();
+xAxis.setValueFormatter(xAxisFormatter);
+xAxis.enableGridDashedLine(10f, 10f, 0f);</code></pre>
+<h2 id="自定义-label-显示">自定义 LABEL 显示</h2>
+<pre><code>
+public class CustomAxisFormatter implements IAxisValueFormatter {
+    @Override
+    public String getFormattedValue(float value, AxisBase axis) {
+        Date date = new Date((long) value);
+        SimpleDateFormat sdf = new SimpleDateFormat(&quot;MM-dd&quot;, Locale.CHINA);
+        return sdf.format(date);
+    }
+}</code></pre>
+<p>===</p>
+<h2 id="mpandroidchat-自定义-marker">MPAndroidChat 自定义 Marker</h2>
+<pre><code>@SuppressLint(&quot;ViewConstructor&quot;)
+public class DescriptionChartMarkerView extends MarkerView {
+    private TextView content;
+    private int startIndex;
+
+    public DescriptionChartMarkerView(Context context, int layoutResource) {
+        super(context, layoutResource);
+        content = (TextView) findViewById(R.id.view);
+    }
+
+    @SuppressLint(&quot;DefaultLocale&quot;)
+    @Override
+    public void refreshContent(Entry e, Highlight highlight) {
+        super.refreshContent(e, highlight);
+        content.setText(String.format(&quot;%d&quot;, startIndex + 1));
+        startIndex++;
+    }
+
+    public void setStartIndex(int startIndex) {
+        this.startIndex = startIndex;
+    }
+}</code></pre>
+<h2 id="圆圈">圆圈</h2>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;shape
+    xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:shape=&quot;oval&quot;&gt;
+
+    &lt;solid
+        android:color=&quot;@color/cmb_green&quot;/&gt;
+
+    &lt;size
+        android:width=&quot;@dimen/text_size_14&quot;
+        android:height=&quot;@dimen/text_size_14&quot;/&gt;
+&lt;/shape&gt;</code></pre>
+<h2 id="charting-设置位置">Charting 设置位置</h2>
+<pre><code>chart.getTransformer(chart.getLineData().mDataSets.get(0).getAxisDependency()).getPixelForValues(highlights[index].getX(), highlights[index].getY());</code></pre>
+<h2 id="添加子布局">添加子布局</h2>
+<pre><code>View marker = LayoutInflater.from(getContext()).inflate(R.layout.marker, view, false);
+RelativeLayout.LayoutParams params  = (RelativeLayout.LayoutParams) marker.getLayoutParams();
+
+TextView textView = (TextView) marker.findViewById(R.id.text_view);
+textView.setText(String.format(&quot;%d&quot;, i));
+
+params.leftMargin = 20
+params.topMargin = 20
+
+marker.setLayoutParams(params);
+view.addView(marker);</code></pre>
 </body>
 </html>

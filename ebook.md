@@ -876,3 +876,148 @@ Android 列表箭头图片
     app:srcCompat="@drawable/ic_chevron_right" />
 ```
 
+
+
+
+自定义 Layout
+---
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cmb_white"
+   
+    <com.phodal.app.LineChart
+        android:id="@+id/line_chart"
+        android:layout_width="match_parent"
+        android:layout_height="160dp" />
+
+</LinearLayout>
+```
+
+```
+public class DescriptionLineChart extends RelativeLayout {
+
+	public DescriptionLineChart(Context context, AttributeSet attr) {
+		super(context, attr);
+		view = LayoutInflater.from(context).inflate(R.layout.chart_layout, this);
+	}
+}
+```
+
+MPAndroidChat Y 轴
+---
+
+```
+YAxis leftAxis = chart.getAxisLeft();
+leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
+leftAxis.enableGridDashedLine(10f, 10f, 0f);
+leftAxis.setDrawZeroLine(false);
+leftAxis.setDrawLimitLinesBehindData(true);
+```
+
+X 轴设置
+---
+
+```
+XAxis xAxis = chart.getXAxis();
+xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+xAxis.setDrawGridLines(true);
+xAxis.setGranularity(1f);
+xAxis.setLabelCount(5);
+IAxisValueFormatter xAxisFormatter = new DateAxisFormatter();
+xAxis.setValueFormatter(xAxisFormatter);
+xAxis.enableGridDashedLine(10f, 10f, 0f);
+```
+
+自定义 LABEL 显示
+---
+
+```
+
+public class CustomAxisFormatter implements IAxisValueFormatter {
+    @Override
+    public String getFormattedValue(float value, AxisBase axis) {
+        Date date = new Date((long) value);
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd", Locale.CHINA);
+        return sdf.format(date);
+    }
+}
+```
+
+
+
+===
+
+MPAndroidChat 自定义 Marker
+---
+
+```
+@SuppressLint("ViewConstructor")
+public class DescriptionChartMarkerView extends MarkerView {
+    private TextView content;
+    private int startIndex;
+
+    public DescriptionChartMarkerView(Context context, int layoutResource) {
+        super(context, layoutResource);
+        content = (TextView) findViewById(R.id.view);
+    }
+
+    @SuppressLint("DefaultLocale")
+    @Override
+    public void refreshContent(Entry e, Highlight highlight) {
+        super.refreshContent(e, highlight);
+        content.setText(String.format("%d", startIndex + 1));
+        startIndex++;
+    }
+
+    public void setStartIndex(int startIndex) {
+        this.startIndex = startIndex;
+    }
+}
+```
+
+圆圈
+---
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <solid
+        android:color="@color/cmb_green"/>
+
+    <size
+        android:width="@dimen/text_size_14"
+        android:height="@dimen/text_size_14"/>
+</shape>
+```
+
+
+Charting 设置位置
+---
+
+```
+chart.getTransformer(chart.getLineData().mDataSets.get(0).getAxisDependency()).getPixelForValues(highlights[index].getX(), highlights[index].getY());
+```
+
+添加子布局
+---
+
+```
+View marker = LayoutInflater.from(getContext()).inflate(R.layout.marker, view, false);
+RelativeLayout.LayoutParams params  = (RelativeLayout.LayoutParams) marker.getLayoutParams();
+
+TextView textView = (TextView) marker.findViewById(R.id.text_view);
+textView.setText(String.format("%d", i));
+
+params.leftMargin = 20
+params.topMargin = 20
+
+marker.setLayoutParams(params);
+view.addView(marker);
+```
