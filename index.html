@@ -128,6 +128,12 @@ code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Infor
 <li><a href="#mpandroidchat-生成位置">MPAndroidChat 生成位置</a></li>
 <li><a href="#添加子布局">添加子布局</a></li>
 </ul></li>
+<li><a href="#大前端-android-开发日记八android-短信微信微博分享">大前端 Android 开发日记八：Android 短信、微信、微博分享</a><ul>
+<li><a href="#toolbar-上的分享按钮">Toolbar 上的分享按钮</a></li>
+<li><a href="#短信分享示例">短信分享示例</a></li>
+<li><a href="#使用-dialog-绘制底部分享">使用 Dialog 绘制底部分享</a></li>
+<li><a href="#使用-bottomsheetdialog-绘制分享菜单">使用 BottomSheetDialog 绘制分享菜单</a></li>
+</ul></li>
 </ul>
 </nav>
 <h1 id="大前端-android-开发日记一了解基本业务与技术栈">大前端 Android 开发日记一：了解基本业务与技术栈</h1>
@@ -838,5 +844,132 @@ params.topMargin = 20
 
 marker.setLayoutParams(params);
 view.addView(marker);</code></pre>
+<h1 id="大前端-android-开发日记八android-短信微信微博分享">大前端 Android 开发日记八：Android 短信、微信、微博分享</h1>
+<p>在纠结了几天的图表功能之后，我开始开发一个新的功能。即分享内容到短信、微信、微博等渠道，对应的我有一个简单的 Task：</p>
+<ul>
+<li>在 Toolbar 写分享的按钮</li>
+<li>绘制一个 Android 的分享页面</li>
+<li>编写短信分享示例</li>
+<li>编写社交分享</li>
+</ul>
+<p>在这一天，我只完成了前面的三部分。</p>
+<h2 id="toolbar-上的分享按钮">Toolbar 上的分享按钮</h2>
+<p>在 Toolbar 主要还是靠 ImageView 来绘制右上角的分享按钮：</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;android.support.v7.widget.Toolbar xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:toolbar=&quot;http://schemas.android.com/apk/res-auto&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:id=&quot;@+id/toolbar&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;?attr/actionBarSize&quot;
+    android:background=&quot;?attr/colorPrimaryDark&quot;
+    android:gravity=&quot;center&quot;&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/toolbar_title&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_gravity=&quot;center&quot;
+        android:text=&quot;xxx&quot; /&gt;
+
+    &lt;ImageView
+        android:visibility=&quot;invisible&quot;
+        android:id=&quot;@+id/share&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:paddingEnd=&quot;@dimen/length_24&quot;
+        android:paddingStart=&quot;@dimen/length_16&quot;
+        android:paddingTop=&quot;@dimen/length_16&quot;
+        android:paddingBottom=&quot;@dimen/length_16&quot;
+        android:layout_gravity=&quot;right&quot;
+        android:src=&quot;@drawable/share_icon&quot;
+        tools:ignore=&quot;RtlHardcoded&quot; /&gt;
+
+&lt;/android.support.v7.widget.Toolbar&gt;</code></pre>
+<p>然后在加载到数据的时候，将这个元素变为可见：</p>
+<pre><code>share.setVisibility(View.VISIBLE);</code></pre>
+<h2 id="短信分享示例">短信分享示例</h2>
+<p>在实现 UI 之前，我先写了一个简单的分享功能：</p>
+<pre><code>@OnClick(R.id.share)
+void shareAction() {
+    BaseShare smsShare = ShareFactory.create(&quot;SMS&quot;);
+    String text = information.getTitle() + &quot;:&quot; + information.getTitle();
+    smsShare.share(this, text);
+}</code></pre>
+<p>随后将其重构为简单的工厂模式：</p>
+<pre><code>public static BaseShare getShareType(String type) {
+    switch (type) {
+        case &quot;SMS&quot;:
+            return new SMSShare();
+        case &quot;WEIBO&quot;:
+            return new WeiboShare();
+        case &quot;MOMENTS&quot;:
+            return new MomentsShare();
+        case &quot;WECHAT&quot;:
+            return new WechatShare();
+    }
+    return null;
+}</code></pre>
+<p>对应于不同的分享类型，都有不同的类来做相应的处理。</p>
+<h2 id="使用-dialog-绘制底部分享">使用 Dialog 绘制底部分享</h2>
+<p>在最开始的时候，我使用的是 Dialog 来绘制底部的布局：</p>
+<pre><code>void showShareDialog() {
+    Dialog bottomDialog = new Dialog(this, R.style.BottomDialog);
+    View contentView = LayoutInflater.from(this).inflate(R.layout.bottom_share, null);
+    bottomDialog.setContentView(contentView);
+
+    ViewGroup.LayoutParams layoutParams = contentView.getLayoutParams();
+    layoutParams.width = getResources().getDisplayMetrics().widthPixels;
+    contentView.setLayoutParams(layoutParams);
+
+    bottomDialog.getWindow().setGravity(Gravity.BOTTOM);
+    bottomDialog.setCanceledOnTouchOutside(true);
+    
+    bottomDialog.getWindow().setWindowAnimations(R.style.BottomDialog_Animation);
+    bottomDialog.show();
+    }</code></pre>
+<p>然后简单地了解了一下动画效果：</p>
+<pre><code>&lt;style name=&quot;BottomDialog&quot;&gt;
+    &lt;item name=&quot;android:windowNoTitle&quot;&gt;true&lt;/item&gt;
+    &lt;item name=&quot;android:windowBackground&quot;&gt;@android:color/transparent&lt;/item&gt;
+&lt;/style&gt;
+
+&lt;style name=&quot;BottomDialog.Animation&quot; parent=&quot;Animation.AppCompat.Dialog&quot;&gt;
+    &lt;item name=&quot;android:windowEnterAnimation&quot;&gt;@anim/translate_dialog_in&lt;/item&gt;
+    &lt;item name=&quot;android:windowExitAnimation&quot;&gt;@anim/translate_dialog_out&lt;/item&gt;
+&lt;/style&gt;</code></pre>
+<p>对应的动画文件：</p>
+<p>translate_dialog_in:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;translate xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:duration=&quot;300&quot;
+    android:fromXDelta=&quot;0&quot;
+    android:fromYDelta=&quot;100%&quot;
+    android:toXDelta=&quot;0&quot;
+    android:toYDelta=&quot;0&quot;&gt;
+&lt;/translate&gt;</code></pre>
+<p>translate_dialog_out:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;translate xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:duration=&quot;300&quot;
+    android:fromXDelta=&quot;0&quot;
+    android:fromYDelta=&quot;0&quot;
+    android:toXDelta=&quot;0&quot;
+    android:toYDelta=&quot;100%&quot;&gt;
+&lt;/translate&gt;</code></pre>
+<p>但是绘制的时候，出现了一些问题，即 Dialog 在最上面，随后改用 BottomSheetDialog 来绘制。</p>
+<h2 id="使用-bottomsheetdialog-绘制分享菜单">使用 BottomSheetDialog 绘制分享菜单</h2>
+<p>对应的逻辑变得更加简单了。</p>
+<pre><code>void showShareDialog() {
+    final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(DetailActivity.this);
+    View dialogView = LayoutInflater.from(InformationDetailActivity.this).inflate(R.layout.bottom_share, null);
+
+    dialogView.findViewById(R.id.cancel_share).setOnClickListener(view -&gt; {
+        bottomSheetDialog.dismiss();
+    });
+
+    bottomSheetDialog.setContentView(dialogView);
+    bottomSheetDialog.show();
+}</code></pre>
 </body>
 </html>
