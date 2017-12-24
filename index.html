@@ -134,6 +134,10 @@ code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Infor
 <li><a href="#使用-dialog-绘制底部分享">使用 Dialog 绘制底部分享</a></li>
 <li><a href="#使用-bottomsheetdialog-绘制分享菜单">使用 BottomSheetDialog 绘制分享菜单</a></li>
 </ul></li>
+<li><a href="#大前端-android-开发日记九微博分享">大前端 Android 开发日记九：微博分享</a><ul>
+<li><a href="#短信分享返回">短信分享返回</a></li>
+<li><a href="#微博分享接入">微博分享接入</a></li>
+</ul></li>
 </ul>
 </nav>
 <h1 id="大前端-android-开发日记一了解基本业务与技术栈">大前端 Android 开发日记一：了解基本业务与技术栈</h1>
@@ -971,5 +975,97 @@ void shareAction() {
     bottomSheetDialog.setContentView(dialogView);
     bottomSheetDialog.show();
 }</code></pre>
+<h1 id="大前端-android-开发日记九微博分享">大前端 Android 开发日记九：微博分享</h1>
+<p>早期在评估的时候，使用的是第三方 SDK —— shareSDK。可是，这个第三方 SDK 需要注册相应的账号，并且在后台，我们可以看到对应的分享数据。这也就意味着，它会收集一些用户信息，考虑到在这个因素，只好自己编写相应的对接逻辑。</p>
+<p>因此，在这一天里，主要做的是微博的分享功能。</p>
+<h2 id="短信分享返回">短信分享返回</h2>
+<p>在最近设计的时候，在完成短信分享之后，我需要知道它是通知短信分享出去的。就会用到 <code>onActivityResult</code> 来在 Activity 之间数据交流：</p>
+<pre><code>@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+
+    if (requestCode == ShareUtil.SMS_REQUEST_CODE) {
+        bottomSheetDialog.dismiss();
+    }
+}</code></pre>
+<p>这里的 requestCode 提供给 onActivityResult，是以便确认返回的数据是从哪个 Activity 返回的。这个 requestCode 和 startActivityForResult 中的 requestCode 相对应。即，如下的短信分享逻辑：</p>
+<pre><code>context.startActivityForResult(mIntent, ShareUtil.SMS_REQUEST_CODE);</code></pre>
+<h2 id="微博分享接入">微博分享接入</h2>
+<p>接下来的就是微博分享了，按照官方的文档接入 SDK。配置权限</p>
+<pre><code>&lt;uses-permission android:name=&quot;android.permission.ACCESS_WIFI_STATE&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.READ_PHONE_STATE&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.WRITE_SETTINGS&quot;/&gt;</code></pre>
+<p>对应的 filter</p>
+<pre><code>&lt;intent-filter&gt;
+    &lt;action android:name=&quot;com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY&quot; /&gt;
+    &lt;action android:name=&quot;android.intent.action.MAIN&quot;/&gt;
+&lt;/intent-filter&gt;</code></pre>
+<p>在项目的 build.gradle 中添加依赖源</p>
+<pre><code>allprojects {
+    repositories {
+        jcenter()
+        google()
+        maven { url &quot;https://dl.bintray.com/thelasterstar/maven/&quot; }
+    }
+}</code></pre>
+<p>在应用的 build.gradle 添加对应的依赖</p>
+<pre><code>implementation &#39;com.sina.weibo.sdk:core:4.1.5:openDefaultRelease@aar&#39;</code></pre>
+<p>然后创建一个实现 WbShareCallback 对象的 Activity：</p>
+<pre><code>
+@SuppressLint(&quot;Registered&quot;)
+public class ShareableActivity implements WbShareCallback {
+    private WbShareHandler shareHandler;
+    private BottomSheetDialog bottomSheetDialog;
+    private IWXAPI api;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        WbSdk.install(this, new AuthInfo(this, ShareUtil.weiboId, &quot;http://www.phodal.com/&quot;, &quot;&quot;));
+
+        shareHandler = new WbShareHandler(this);
+        shareHandler.registerApp();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        shareHandler.doResultIntent(intent, this);
+    }
+
+    @Override
+    public void onWbShareSuccess() {
+        bottomSheetDialog.dismiss();
+    }
+
+    @Override
+    public void onWbShareCancel() {
+        bottomSheetDialog.dismiss();
+    }
+
+    @Override
+    public void onWbShareFail() {
+        bottomSheetDialog.dismiss();
+    }
+
+    public void showShareDialog(InformationDetailModel information) {
+        bottomSheetDialog = new BottomSheetDialog(ShareableActivity.this);
+        View dialogView = LayoutInflater.from(ShareableActivity.this).inflate(R.layout.share_dialog, null);
+
+        dialogView.findViewById(R.id.weibo_content).setOnClickListener(view -&gt; {
+            weiboShare(information);
+        });
+
+        bottomSheetDialog.setContentView(dialogView);
+        bottomSheetDialog.show();
+    }
+    private void weiboShare(InformationDetailModel information) {
+        WeiboMultiMessage weiboMessage = new WeiboMultiMessage();
+        weiboMessage.mediaObject = ShareUtil.buildWebPageObject(this, information);
+        shareHandler.shareMessage(weiboMessage, false);
+    }
+}</code></pre>
+<p>差不多就可以了。</p>
 </body>
 </html>
