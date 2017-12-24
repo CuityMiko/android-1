@@ -89,13 +89,6 @@ code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Infor
 <li><a href="#butterknife">ButterKnife</a></li>
 <li><a href="#dagger">Dagger</a></li>
 </ul></li>
-<li><a href="#大前端-android-开发日记-10微信分享">大前端 Android 开发日记 10：微信分享</a><ul>
-<li><a href="#微信分享-sdk-接入">微信分享 SDK 接入</a></li>
-<li><a href="#注册-wxapi">注册 WXApi</a></li>
-<li><a href="#分享逻辑">分享逻辑</a></li>
-<li><a href="#使用-wxentryactivity-做出响应">使用 WXEntryActivity 做出响应</a></li>
-<li><a href="#使用-eventbus-传递事件">使用 EventBus 传递事件</a></li>
-</ul></li>
 <li><a href="#大前端-android-开发日记二编写-mvp-依赖流入的-activity">大前端 Android 开发日记二：编写 MVP + 依赖流入的 Activity</a><ul>
 <li><a href="#创建一个空白页">1.创建一个空白页</a></li>
 <li><a href="#首页打开列表页">2.首页打开列表页</a></li>
@@ -144,6 +137,13 @@ code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Infor
 <li><a href="#大前端-android-开发日记九微博分享">大前端 Android 开发日记九：微博分享</a><ul>
 <li><a href="#短信分享返回">短信分享返回</a></li>
 <li><a href="#微博分享接入">微博分享接入</a></li>
+</ul></li>
+<li><a href="#大前端-android-开发日记-10微信分享">大前端 Android 开发日记 10：微信分享</a><ul>
+<li><a href="#微信分享-sdk-接入">微信分享 SDK 接入</a></li>
+<li><a href="#注册-wxapi">注册 WXApi</a></li>
+<li><a href="#分享逻辑">分享逻辑</a></li>
+<li><a href="#使用-wxentryactivity-做出响应">使用 WXEntryActivity 做出响应</a></li>
+<li><a href="#使用-eventbus-传递事件">使用 EventBus 传递事件</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -238,105 +238,6 @@ public class AppModule {
         return app;
     }
 }</code></pre>
-<h1 id="大前端-android-开发日记-10微信分享">大前端 Android 开发日记 10：微信分享</h1>
-<p>与之前的微博分享相比，微信分享就没有那么容易了——微信官方的 SDK 太差劲了。文章也写得像一坨屎——因为文档里的代码都是截图的。。。</p>
-<h2 id="微信分享-sdk-接入">微信分享 SDK 接入</h2>
-<p>按照官方的指南，添加对应的依赖</p>
-<pre><code>dependencies {
-    compile &#39;com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+&#39;
-}</code></pre>
-<p>对应的权限：</p>
-<pre><code>&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot;/&gt;
-&lt;uses-permission android:name=&quot;android.permission.ACCESS_NETWORK_STATE&quot;/&gt;
-&lt;uses-permission android:name=&quot;android.permission.ACCESS_WIFI_STATE&quot;/&gt;
-&lt;uses-permission android:name=&quot;android.permission.READ_PHONE_STATE&quot;/&gt;
-&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;/&gt;</code></pre>
-<p>相关的混淆代码配置：</p>
-<pre><code>-keep class com.tencent.mm.opensdk.** { *; }
--keep class com.tencent.wxop.** { *; }
--keep class com.tencent.mm.sdk.** { *; }</code></pre>
-<h2 id="注册-wxapi">注册 WXApi</h2>
-<p>首先在程序的 Applicaiton 模块中注册、初始化 WXApi，以方便我们在其它模块中使用：</p>
-<pre><code>public class InformationApplication extends Application {
-    public static IWXAPI wxApi;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        ...
-
-        registerWechat();
-    }
-
-    private void registerWechat() {
-        wxApi = WXAPIFactory.createWXAPI(this, ShareUtil.weixinAppId, true);
-        wxApi.registerApp(ShareUtil.weixinAppId);
-    }
-    ...
-}</code></pre>
-<h2 id="分享逻辑">分享逻辑</h2>
-<p>IWXAPI 中有一个接口是判断用户是否安装微信，如果没有安装微信，我们应该提醒用户；如果安装了微信，那么才能分享。对应的代码如下所示：</p>
-<pre><code>private void wechatShareByType(Model model, int weixinShareType) {
-    IWXAPI wxApi = Application.wxApi;
-
-    boolean isWeixinShareable = wxApi.isWXAppInstalled() &amp;&amp; wxApi.isWXAppSupportAPI();
-    if (!isWeixinShareable) {
-        notInstallWeixinToast();
-        return;
-    }
-    SendMessageToWX.Req req = ShareUtil.buildWXWebPageObject(this, model, weixinShareType);
-    wxApi.sendReq(req);
-}</code></pre>
-<h2 id="使用-wxentryactivity-做出响应">使用 WXEntryActivity 做出响应</h2>
-<p>WXEntryActivity 用于分享完后的响应，于是我们需要注册一个新的 WXEntryActivity，并且固定是在 <strong>包名.wxapi</strong> 目录下</p>
-<pre><code>&lt;activity
-    android:name=&quot;.wxapi.WXEntryActivity&quot;
-    android:exported=&quot;true&quot; /&gt;</code></pre>
-<p>而这个 Activity 需要实现 IWXAPIEventHandler 的方法</p>
-<pre><code>public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHandler {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Application.wxApi.handleIntent(getIntent(), this);
-    }
-
-    @Override
-    public void onResp(BaseResp resp) {
-    }
-
-    @Override
-    public void onReq(BaseReq baseReq) {
-    }
-}</code></pre>
-<h2 id="使用-eventbus-传递事件">使用 EventBus 传递事件</h2>
-<p>为了响应上一步的事件，我使用了 EventBus 来做对应的处理。只需要在 WXEntryActivity 中的 Response 里 post 事件即可：</p>
-<pre><code>@Override
-public void onResp(BaseResp resp) {
-    WeixinEvent weiXin = new WeixinEvent(2, resp.errCode, &quot;&quot;);
-    EventBus.getDefault().post(weiXin);
-    finish();
-}</code></pre>
-<p>对应的在订阅者里，我需要先注册事件：</p>
-<pre><code>@Override
-protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    ...
-    EventBus.getDefault().register(this);
-}
-
-@Override
-protected void onDestroy() {
-    super.onDestroy();
-    EventBus.getDefault().unregister(this);
-}</code></pre>
-<p>然后才能使用：</p>
-<pre><code>@Subscribe
-public void onEventMainThread(WeixinEvent weixinEvent) {
-
-}</code></pre>
-<p>这样，我就可以才分享的 Activity 里获取分享的状态了。</p>
 <h1 id="大前端-android-开发日记二编写-mvp-依赖流入的-activity">大前端 Android 开发日记二：编写 MVP + 依赖流入的 Activity</h1>
 <p>在这一天里，我接到了一张新的业务卡，从技术上来说就是：从列表页打开一个详情页。</p>
 <p>而详情页的入口有两部分，一个是在首页，一个是在列表页。而首页是一个独立的 APK，因此在启动方式就是采用 Actvitiy 来启动。</p>
@@ -544,15 +445,15 @@ public void showDetail(TaskDetailModel task) {
 <p>一个 ViewHolder 描述一个项目视图和关于它在 RecyclerView 中的位置的元数据。</p>
 </blockquote>
 <p>对于我使用例子是，我是在我的列表中的条目中使用 ViewHolder，因此每个条目都是单一的 view。这是一个示例的 ViewHolder，我在它的构建类里添加了一个 onClick 事件：</p>
-<pre class="sourceCode java" id="cb33"><code class="sourceCode java"><div class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw">public</span> <span class="kw">class</span> RelatedViewHolder <span class="kw">extends</span> RecyclerView.<span class="fu">ViewHolder</span> {</div>
-<div class="sourceLine" id="cb33-2" data-line-number="2">    <span class="kw">public</span> <span class="fu">RelatedNewsViewHolder</span>(<span class="bu">View</span> view) {</div>
-<div class="sourceLine" id="cb33-3" data-line-number="3">        <span class="kw">super</span>(view);</div>
-<div class="sourceLine" id="cb33-4" data-line-number="4">        <span class="kw">this</span>.<span class="fu">view</span> = view;</div>
-<div class="sourceLine" id="cb33-5" data-line-number="5">        ButterKnife.<span class="fu">bind</span>(<span class="kw">this</span>, view);</div>
-<div class="sourceLine" id="cb33-6" data-line-number="6"></div>
-<div class="sourceLine" id="cb33-7" data-line-number="7">        <span class="fu">onClick</span>(view);</div>
-<div class="sourceLine" id="cb33-8" data-line-number="8">    }</div>
-<div class="sourceLine" id="cb33-9" data-line-number="9">}</div></code></pre>
+<pre class="sourceCode java" id="cb23"><code class="sourceCode java"><div class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw">public</span> <span class="kw">class</span> RelatedViewHolder <span class="kw">extends</span> RecyclerView.<span class="fu">ViewHolder</span> {</div>
+<div class="sourceLine" id="cb23-2" data-line-number="2">    <span class="kw">public</span> <span class="fu">RelatedNewsViewHolder</span>(<span class="bu">View</span> view) {</div>
+<div class="sourceLine" id="cb23-3" data-line-number="3">        <span class="kw">super</span>(view);</div>
+<div class="sourceLine" id="cb23-4" data-line-number="4">        <span class="kw">this</span>.<span class="fu">view</span> = view;</div>
+<div class="sourceLine" id="cb23-5" data-line-number="5">        ButterKnife.<span class="fu">bind</span>(<span class="kw">this</span>, view);</div>
+<div class="sourceLine" id="cb23-6" data-line-number="6"></div>
+<div class="sourceLine" id="cb23-7" data-line-number="7">        <span class="fu">onClick</span>(view);</div>
+<div class="sourceLine" id="cb23-8" data-line-number="8">    }</div>
+<div class="sourceLine" id="cb23-9" data-line-number="9">}</div></code></pre>
 <p>而在这个 Click 事件里，启动了一个新的 Activity：</p>
 <pre><code>public void onClick(View itemView) {
     itemView.setOnClickListener(view -&gt; {
@@ -1173,5 +1074,104 @@ public class ShareableActivity implements WbShareCallback {
     }
 }</code></pre>
 <p>差不多就可以了。</p>
+<h1 id="大前端-android-开发日记-10微信分享">大前端 Android 开发日记 10：微信分享</h1>
+<p>与之前的微博分享相比，微信分享就没有那么容易了——微信官方的 SDK 太差劲了。文章也写得像一坨屎——因为文档里的代码都是截图的。。。</p>
+<h2 id="微信分享-sdk-接入">微信分享 SDK 接入</h2>
+<p>按照官方的指南，添加对应的依赖</p>
+<pre><code>dependencies {
+    compile &#39;com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+&#39;
+}</code></pre>
+<p>对应的权限：</p>
+<pre><code>&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.ACCESS_NETWORK_STATE&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.ACCESS_WIFI_STATE&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.READ_PHONE_STATE&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;/&gt;</code></pre>
+<p>相关的混淆代码配置：</p>
+<pre><code>-keep class com.tencent.mm.opensdk.** { *; }
+-keep class com.tencent.wxop.** { *; }
+-keep class com.tencent.mm.sdk.** { *; }</code></pre>
+<h2 id="注册-wxapi">注册 WXApi</h2>
+<p>首先在程序的 Applicaiton 模块中注册、初始化 WXApi，以方便我们在其它模块中使用：</p>
+<pre><code>public class InformationApplication extends Application {
+    public static IWXAPI wxApi;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        ...
+
+        registerWechat();
+    }
+
+    private void registerWechat() {
+        wxApi = WXAPIFactory.createWXAPI(this, ShareUtil.weixinAppId, true);
+        wxApi.registerApp(ShareUtil.weixinAppId);
+    }
+    ...
+}</code></pre>
+<h2 id="分享逻辑">分享逻辑</h2>
+<p>IWXAPI 中有一个接口是判断用户是否安装微信，如果没有安装微信，我们应该提醒用户；如果安装了微信，那么才能分享。对应的代码如下所示：</p>
+<pre><code>private void wechatShareByType(Model model, int weixinShareType) {
+    IWXAPI wxApi = Application.wxApi;
+
+    boolean isWeixinShareable = wxApi.isWXAppInstalled() &amp;&amp; wxApi.isWXAppSupportAPI();
+    if (!isWeixinShareable) {
+        notInstallWeixinToast();
+        return;
+    }
+    SendMessageToWX.Req req = ShareUtil.buildWXWebPageObject(this, model, weixinShareType);
+    wxApi.sendReq(req);
+}</code></pre>
+<h2 id="使用-wxentryactivity-做出响应">使用 WXEntryActivity 做出响应</h2>
+<p>WXEntryActivity 用于分享完后的响应，于是我们需要注册一个新的 WXEntryActivity，并且固定是在 <strong>包名.wxapi</strong> 目录下</p>
+<pre><code>&lt;activity
+    android:name=&quot;.wxapi.WXEntryActivity&quot;
+    android:exported=&quot;true&quot; /&gt;</code></pre>
+<p>而这个 Activity 需要实现 IWXAPIEventHandler 的方法</p>
+<pre><code>public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHandler {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Application.wxApi.handleIntent(getIntent(), this);
+    }
+
+    @Override
+    public void onResp(BaseResp resp) {
+    }
+
+    @Override
+    public void onReq(BaseReq baseReq) {
+    }
+}</code></pre>
+<h2 id="使用-eventbus-传递事件">使用 EventBus 传递事件</h2>
+<p>为了响应上一步的事件，我使用了 EventBus 来做对应的处理。只需要在 WXEntryActivity 中的 Response 里 post 事件即可：</p>
+<pre><code>@Override
+public void onResp(BaseResp resp) {
+    WeixinEvent weiXin = new WeixinEvent(2, resp.errCode, &quot;&quot;);
+    EventBus.getDefault().post(weiXin);
+    finish();
+}</code></pre>
+<p>对应的在订阅者里，我需要先注册事件：</p>
+<pre><code>@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    ...
+    EventBus.getDefault().register(this);
+}
+
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+    EventBus.getDefault().unregister(this);
+}</code></pre>
+<p>然后才能使用：</p>
+<pre><code>@Subscribe
+public void onEventMainThread(WeixinEvent weixinEvent) {
+
+}</code></pre>
+<p>这样，我就可以才分享的 Activity 里获取分享的状态了。</p>
 </body>
 </html>
