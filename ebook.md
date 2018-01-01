@@ -1767,3 +1767,180 @@ public void updateItem(int updateItemId, int eventID, String updateType) {
 }
 ```
 
+
+大前端 Android 开发日记 13：动态更新日历状态
+===
+
+
+### 1.使用 EventBus 创建通知事件
+
+```
+CreateCalenderSuccessEvent createCalenderSuccessEvent = new CreateCalenderSuccessEvent(calendar.getId(), (int) eventId);
+        EventBus.getDefault().post(createCalenderSuccessEvent);
+```
+
+### 2.接收事件，并传递给 Adapter
+
+```
+@SuppressLint("ShowToast")
+@Subscribe
+public void onCreateCalendarThread(CreateCalenderSuccessEvent createCalenderSuccessEvent) {
+    Toast.makeText(this.getContext(), R.string.already_add_event, Toast.LENGTH_SHORT).show();
+    int id = createCalenderSuccessEvent.getId();
+    int eventID = createCalenderSuccessEvent.getEventId();
+    Timber.d("日历创建成功 " + id);
+
+    calendarAdapter.updateItem(id,  eventID, "create");
+}
+```
+
+### 3. 更新 Item
+
+```
+public void updateItem(int updateItemId, int eventID, String updateType) {
+    CalendarModel item = null;
+    int index = -1;
+    for (int i = 0, size = calendarList.size(); i < size; i++) {
+        if (calendarList.get(i).getId() == updateItemId) {
+            index = i;
+            item = calendarList.get(i);
+            break;
+        }
+    }
+    if (index < 0) {
+        return;
+    }
+
+    if (updateType.equals("create")) {
+        item.setEventId(eventID);
+    } else if (updateType.equals("remove")) {
+        item.setEventId(0);
+    }
+
+    calendarList.set(index, item);
+    notifyItemChanged(index);
+}
+```
+
+
+### 4. 更新状态
+
+```
+if (calendar.getEventId() != 0) {
+    calendar_reminder_.setText(R.string.cancel);
+} else {
+    text.setText(R.string.title);
+}
+```
+
+大前端 Android 开发日记 14：纯 HTML 的 WebView Loading 效果
+===
+
+### 在线 WebView Loading 效果
+
+```
+public class AppWebViewClients extends WebViewClient {
+    private ProgressBar progressBar;
+
+    public AppWebViewClients(ProgressBar progressBar) {
+        this.progressBar = progressBar;
+    }
+
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        // TODO Auto-generated method stub
+        view.loadUrl(url);
+        return true;
+    }
+
+    @Override
+    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        super.onPageStarted(view, url, favicon);
+    }
+
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        // TODO Auto-generated method stub
+        super.onPageFinished(view, url);
+        progressBar.setVisibility(View.GONE);
+    }
+}
+```
+
+###  本地 WebView Loading 效果
+
+```
+<com.wang.avi.AVLoadingIndicatorView
+    android:id="@+id/spinner"
+    app:indicatorColor="@color/cmb_gold"
+    ...
+    />
+
+<com.cmb.plugin.information.view.ProgressWebView
+    android:id="@+id/webview"
+    ...
+    />
+
+```
+
+
+```
+@SuppressWarnings("deprecation")
+public class ProgressWebView extends WebView {
+
+    private ProgressBar progressBar;
+    private Handler handler;
+
+    public ProgressWebView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        progressBar = new ProgressBar(context, null, android.R.attr.progressBarStyle);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params.gravity= Gravity.CENTER;
+        progressBar.setLayoutParams(params);
+
+        handler = new Handler();
+
+        addView(progressBar);
+        setWebChromeClient(new WebChromeClient());
+    }
+
+    public void setProgressBar(ProgressBar progressBar) {
+        this.progressBar = progressBar;
+    }
+
+    public class WebChromeClient extends android.webkit.WebChromeClient {
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
+            if (newProgress == 100) {
+                progressBar.setProgress(100);
+                handler.postDelayed(runnable, 200);
+            } else {
+                progressBar.setProgress(newProgress);
+            }
+            super.onProgressChanged(view, newProgress);
+        }
+    }
+
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            progressBar.setVisibility(View.GONE);
+        }
+    };
+}
+``
+
+
+
+
+大前端 Android 开发日记 14：Android WebView 默认 margin 样式问题
+===
+
+
+```
+public class WebViewUtil {
+    public static String removeDefaultStyle(String originContent) {
+        return "<body style='margin:0;padding:0;background-color: transparent;'>" + originContent + "</body>";
+    }
+}
+```
