@@ -1771,8 +1771,22 @@ public void updateItem(int updateItemId, int eventID, String updateType) {
 大前端 Android 开发日记 13：动态更新日历状态
 ===
 
+继续之前的日志开发，在之前的文章中，我们已经可以从系统日历里读取、删除、添加日历了。
+
+在这一篇里，我要总结提：每当我添加或者删除日历的时候，我需要同时更新页面上的元素。因此，在这里我们分为了四个步骤：
+
+ 1. 使用 EventBus 创建通知事件
+ 2. 接收事件，并传递给 Adapter
+ 3. 更新 Item
+ 4. 更新状态
+
+动态更新日历状态
+---
 
 ### 1.使用 EventBus 创建通知事件
+
+
+由于之前已经介绍过 EventBus 的相关内容，这里简单地列一下代码就好了：
 
 ```
 CreateCalenderSuccessEvent createCalenderSuccessEvent = new CreateCalenderSuccessEvent(calendar.getId(), (int) eventId);
@@ -1781,14 +1795,13 @@ CreateCalenderSuccessEvent createCalenderSuccessEvent = new CreateCalenderSucces
 
 ### 2.接收事件，并传递给 Adapter
 
+随后在我们的 Activity 中接收相应的事件，然后调用 Adapter 中的方法：
+
 ```
 @SuppressLint("ShowToast")
 @Subscribe
 public void onCreateCalendarThread(CreateCalenderSuccessEvent createCalenderSuccessEvent) {
-    Toast.makeText(this.getContext(), R.string.already_add_event, Toast.LENGTH_SHORT).show();
-    int id = createCalenderSuccessEvent.getId();
-    int eventID = createCalenderSuccessEvent.getEventId();
-    Timber.d("日历创建成功 " + id);
+    ...
 
     calendarAdapter.updateItem(id,  eventID, "create");
 }
@@ -1796,20 +1809,12 @@ public void onCreateCalendarThread(CreateCalenderSuccessEvent createCalenderSucc
 
 ### 3. 更新 Item
 
+然后根据传过来的更新类型，我们来为对应的 item 修改 eventid 的值：
+
 ```
 public void updateItem(int updateItemId, int eventID, String updateType) {
     CalendarModel item = null;
-    int index = -1;
-    for (int i = 0, size = calendarList.size(); i < size; i++) {
-        if (calendarList.get(i).getId() == updateItemId) {
-            index = i;
-            item = calendarList.get(i);
-            break;
-        }
-    }
-    if (index < 0) {
-        return;
-    }
+    ...
 
     if (updateType.equals("create")) {
         item.setEventId(eventID);
@@ -1822,8 +1827,9 @@ public void updateItem(int updateItemId, int eventID, String updateType) {
 }
 ```
 
-
 ### 4. 更新状态
+
+最近根据有没有 eventid，来决定是否显示的内容：
 
 ```
 if (calendar.getEventId() != 0) {
@@ -1836,7 +1842,14 @@ if (calendar.getEventId() != 0) {
 大前端 Android 开发日记 14：纯 HTML 的 WebView Loading 效果
 ===
 
-### 在线 WebView Loading 效果
+因为 HTTP 请求 + WebView 的渲染时间问题，我们决定为 WebView 添加一个 Loading 效果。于是，在这一天里，做的主要也就是这一方面的工作。
+
+不过，一开始的时候，没有意识到我们的 WebView 和一般的 WebView 是不一样的，也就掉坑里了。我们的 WebView 是使用纯 HTML 渲染的文章内容，也就是后台只返回一个纯的 HTML 文本，不需要去远程请求。
+
+通常的 WebView Loading 效果
+---
+
+一般来说，通过以下的代码就可以为 WebView 添加一个 Loading 显示和隐藏的效果：
 
 ```
 public class AppWebViewClients extends WebViewClient {
@@ -1867,7 +1880,43 @@ public class AppWebViewClients extends WebViewClient {
 }
 ```
 
-###  本地 WebView Loading 效果
+也就是在 ``onPageFinished`` 的时候，隐藏 progressBar。后来，我发现我们的 progressBar 不会显示，因为这里的 ``onPageFinished`` 是 WebView 完成 HTTP 请求触发的事件。
+
+
+本地 WebView Loading 效果
+---
+
+于是，我改用覆写 WebView 的方式，通过 onProgressChanged 来实时监测变化，最后等到 100% 再隐藏 hide
+
+```
+public class ProgressWebView extends WebView {
+
+    private AVLoadingIndicatorView spinner;
+
+    public ProgressWebView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        setWebChromeClient(new WebChromeClient());
+    }
+
+    public void setSpinner(AVLoadingIndicatorView spinner) {
+        this.spinner = spinner;
+    }
+
+    public class WebChromeClient extends android.webkit.WebChromeClient {
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
+            if (newProgress == 100) {
+                spinner.hide();
+            }
+            super.onProgressChanged(view, newProgress);
+        }
+    }
+}
+``
+
+对应的布局：
+
 
 ```
 <com.wang.avi.AVLoadingIndicatorView
@@ -1883,59 +1932,15 @@ public class AppWebViewClients extends WebViewClient {
 
 ```
 
-
-```
-@SuppressWarnings("deprecation")
-public class ProgressWebView extends WebView {
-
-    private ProgressBar progressBar;
-    private Handler handler;
-
-    public ProgressWebView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        progressBar = new ProgressBar(context, null, android.R.attr.progressBarStyle);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        params.gravity= Gravity.CENTER;
-        progressBar.setLayoutParams(params);
-
-        handler = new Handler();
-
-        addView(progressBar);
-        setWebChromeClient(new WebChromeClient());
-    }
-
-    public void setProgressBar(ProgressBar progressBar) {
-        this.progressBar = progressBar;
-    }
-
-    public class WebChromeClient extends android.webkit.WebChromeClient {
-        @Override
-        public void onProgressChanged(WebView view, int newProgress) {
-            if (newProgress == 100) {
-                progressBar.setProgress(100);
-                handler.postDelayed(runnable, 200);
-            } else {
-                progressBar.setProgress(newProgress);
-            }
-            super.onProgressChanged(view, newProgress);
-        }
-    }
-
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            progressBar.setVisibility(View.GONE);
-        }
-    };
-}
-``
-
-
+尽管没有完全实现在 WebView 渲染完成时，再隐藏的方式，但是勉强可以完成需求。要在 WebView 渲染完时，再隐藏，最简单的方式就是流入 JavaScript，让其在 ``window.onload`` 时告诉原生代码，渲染已完成。
 
 
 大前端 Android 开发日记 14：Android WebView 默认 margin 样式问题
 ===
 
+这一也没啥做的，不过也算是修了一个 CSS 的样式问题。
+
+这个问题的主要来源是，后端返回的 HTML 是不带样式的，而默认的 WebView 会为 Div 标签加上 8px 的 padding，也就是说没有 CSS Reset。这个时候，就需要手动加一个 Reset 效果了，于是就写了一个简单的方法来做这件事。顺便带页面的内容，包在了 body 中。
 
 ```
 public class WebViewUtil {
@@ -1944,3 +1949,13 @@ public class WebViewUtil {
     }
 }
 ```
+
+Reset 的 CSS 的内容就是：
+
+```
+margin:0;
+padding:0;
+```
+
+然后在一次新的测试中，发现了样式中又默认了白色背景，于是就加了一个背景透明 ``background-color: transparent;``。
+
