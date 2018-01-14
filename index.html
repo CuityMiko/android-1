@@ -172,6 +172,7 @@ code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Infor
 <li><a href="#通常的-webview-loading-效果">通常的 WebView Loading 效果</a></li>
 <li><a href="#本地-webview-loading-效果">本地 WebView Loading 效果</a></li>
 </ul></li>
+<li><a href="#大前端-android-开发日记-14android-webview-默认-margin-样式问题">大前端 Android 开发日记 14：Android WebView 默认 margin 样式问题</a></li>
 </ul>
 </nav>
 <h1 id="大前端-android-开发日记一了解基本业务与技术栈">大前端 Android 开发日记一：了解基本业务与技术栈</h1>
@@ -1472,34 +1473,31 @@ public void onCreateCalendarThread(CreateCalenderSuccessEvent createCalenderSucc
             super.onProgressChanged(view, newProgress);
         }
     }
-}
-``
+}</code></pre>
+<p>对应的布局：</p>
+<pre><code>&lt;com.wang.avi.AVLoadingIndicatorView
+    android:id=&quot;@+id/spinner&quot;
+    app:indicatorColor=&quot;@color/cmb_gold&quot;
+    ...
+    /&gt;
 
-对应的布局：
-
+&lt;com.cmb.plugin.information.view.ProgressWebView
+    android:id=&quot;@+id/webview&quot;
+    ...
+    /&gt;
 </code></pre>
-<p>&lt;com.wang.avi.AVLoadingIndicatorView android:id=“@+id/spinner” app:indicatorColor=“<span class="citation" data-cites="color/cmb_gold">@color/cmb_gold</span>” … /&gt;</p>
-<p>&lt;com.cmb.plugin.information.view.ProgressWebView android:id=“@+id/webview” … /&gt;</p>
-<pre><code>
-尽管没有完全实现在 WebView 渲染完成时，再隐藏的方式，但是勉强可以完成需求。要在 WebView 渲染完时，再隐藏，最简单的方式就是流入 JavaScript，让其在 ``window.onload`` 时告诉原生代码，渲染已完成。
-
-
-大前端 Android 开发日记 14：Android WebView 默认 margin 样式问题
-===
-
-这一也没啥做的，不过也算是修了一个 CSS 的样式问题。
-
-这个问题的主要来源是，后端返回的 HTML 是不带样式的，而默认的 WebView 会为 Div 标签加上 8px 的 padding，也就是说没有 CSS Reset。这个时候，就需要手动加一个 Reset 效果了，于是就写了一个简单的方法来做这件事。顺便带页面的内容，包在了 body 中。
-</code></pre>
-public class WebViewUtil { public static String removeDefaultStyle(String originContent) { return “
-<body style="margin:0;padding:0;background-color: transparent;">
-&quot; + originContent + “
-</body>
-<p>“; } }</p>
-<pre><code>
-Reset 的 CSS 的内容就是：
-</code></pre>
-<p>margin:0; padding:0; ```</p>
+<p>尽管没有完全实现在 WebView 渲染完成时，再隐藏的方式，但是勉强可以完成需求。要在 WebView 渲染完时，再隐藏，最简单的方式就是流入 JavaScript，让其在 <code>window.onload</code> 时告诉原生代码，渲染已完成。</p>
+<h1 id="大前端-android-开发日记-14android-webview-默认-margin-样式问题">大前端 Android 开发日记 14：Android WebView 默认 margin 样式问题</h1>
+<p>这一也没啥做的，不过也算是修了一个 CSS 的样式问题。</p>
+<p>这个问题的主要来源是，后端返回的 HTML 是不带样式的，而默认的 WebView 会为 Div 标签加上 8px 的 padding，也就是说没有 CSS Reset。这个时候，就需要手动加一个 Reset 效果了，于是就写了一个简单的方法来做这件事。顺便带页面的内容，包在了 body 中。</p>
+<pre><code>public class WebViewUtil {
+    public static String removeDefaultStyle(String originContent) {
+        return &quot;&lt;body style=&#39;margin:0;padding:0;background-color: transparent;&#39;&gt;&quot; + originContent + &quot;&lt;/body&gt;&quot;;
+    }
+}</code></pre>
+<p>Reset 的 CSS 的内容就是：</p>
+<pre><code>margin:0;
+padding:0;</code></pre>
 <p>然后在一次新的测试中，发现了样式中又默认了白色背景，于是就加了一个背景透明 <code>background-color: transparent;</code>。</p>
 </body>
 </html>
